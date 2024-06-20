@@ -1,0 +1,216 @@
+.main-section {
+    border-radius: 34px;
+    background-color: #fff;
+    display: flex;
+    padding-bottom: 40px;
+    flex-direction: column;
+  }
+  .main-header {
+    background-color: var(--Default-White, #fff);
+    display: flex;
+    width: 100%;
+    gap: 40px;
+    justify-content: space-evenly;
+    padding-top: 30px;
+    padding-bottom: 30px;
+    align-items: center;
+  }
+  @media (max-width: 991px) {
+    .main-header {
+      max-width: 100%;
+      flex-wrap: wrap;
+      padding: 0 20px;
+    }
+  }
+  .header-left {
+    display: flex;
+    gap: 17px;
+  }
+  .header-icon {
+    display: flex;
+    align-items: center;
+  }
+  .header-icon-img{
+    height: 60px;
+    width: 60px;
+  }
+  .inner-circle {
+    border-radius: 24px;
+    background-color: #7288fa;
+    z-index: 10;
+    width: 32px;
+    height: 32px;
+  }
+  .header-title {
+    color: var(--Default-Brand, #7288fa);
+    font-feature-settings: "clig" off, "liga" off;
+    margin-top: 17px;
+    font: 500 24px/150% Poppins, sans-serif;
+  }
+
+  .header-right {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    font-weight: 600;
+    white-space: nowrap;
+    text-align: center;
+    justify-content: space-between;
+  }
+  .search-bar {
+    display: flex;
+    align-items: center;
+    box-shadow: 0 30px 40px rgba(89, 104, 178, 0.06), 0 0 30px rgba(89, 104, 178, 0.06);
+    background-color: #fff;
+    border-radius: 30px;
+    padding: 16px;
+    gap: 7px;
+    width: 30%;
+    height: 20px;
+  }
+  .search-icon {
+    width: 20px;
+    aspect-ratio: 1;
+    object-fit: auto;
+  }
+  .search-text {
+    font-feature-settings: "clig" off, "liga" off;
+    font-family: Poppins, sans-serif;
+  }
+  .profile-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    padding: 10px 18px;
+    color: #333F4E;
+    font-size: 16px;
+    font-family: Poppins, sans-serif;
+    font-weight: 600;
+    min-height: 40px;
+    min-width: 130px
+  }
+  .profile-icon{
+    width: 35%;
+    border-radius: 100%;
+  }
+  .icon-text-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 10px 18px;
+    border-radius: 41px;
+    box-shadow: 0 8px 30px rgba(65, 89, 214, 0.3);
+    background-color: var(--Default-Brand, #7288fa);
+    color: #fff;
+    font-size: 15px;
+    font-family: Poppins, sans-serif;
+    font-weight: 600;
+    min-height: 40px;
+    min-width: 130px
+  }
+  .icon{
+    width: 30px;
+    height: 30px;
+  }
+
+  @media (max-width: 991px) {
+    .header-right {
+      white-space: initial;
+      padding: 0 20px;
+    }
+  }
+  .content {
+    border-radius: 30px;
+    background-color: #f2f4f8;
+    align-self: center;
+    display: flex;
+    width: 100%;
+    max-width: 1404px;
+    flex-direction: column;
+    padding: 37px 28px;
+  }
+  @media (max-width: 991px) {
+    .content {
+      max-width: 100%;
+      padding: 0 20px;
+    }
+  }
+  .content-title {
+    color: var(--Text-Light-01, #333f4e);
+    font-feature-settings: "clig" off, "liga" off;
+    margin-left: 10px;
+    font: 700 46px/122% Poppins, sans-serif;
+  }
+  @media (max-width: 991px) {
+    .content-title {
+      font-size: 40px;
+    }
+  }
+  .total-storage {
+    color: var(--Text-Light-01, #333f4e);
+    font-feature-settings: "clig" off, "liga" off;
+    margin: 16px 0 0 10px;
+    font: 600 16px/24px Poppins, sans-serif;
+  }
+  .total-label {
+    font-weight: 400;
+  }
+  .files-section {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+    font-size: 14px;
+    color: var(--Text-Light-01, #333f4e);
+    line-height: 143%;
+    margin: 52px 0 0 10px;
+  }
+  @media (max-width: 991px) {
+    .files-section {
+      flex-wrap: wrap;
+      margin-top: 40px;
+    }
+  }
+  .file-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    flex: 1;
+    padding: 15px;
+    background-color: #fff;
+    border-radius: 12px;
+  }
+  .file-item-content {
+    display: flex;
+    gap: 15px;
+  }
+  .file-icon {
+    width: 60px;
+    aspect-ratio: 1;
+    object-fit: auto;
+  }
+  .file-details {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    margin: auto 0;
+  }
+  .file-title {
+    font-feature-settings: "clig" off, "liga" off;
+    font-family: Poppins, sans-serif;
+    font-weight: 600;
+  }
+  .file-info {
+    font-feature-settings: "clig" off, "liga" off;
+    font-family: Poppins, sans-serif;
+    font-weight: 400;
+    margin-top: 4px;
+  }
+  .file-action-icon {
+    width: 26px;
+    aspect-ratio: 1;
+    object-fit: auto;
+    margin: auto 0;
+  }
