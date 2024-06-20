@@ -99,7 +99,7 @@
       margin-top: 40px;
     }
   }
-  .login-container {
+  .verify-email-container {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -107,18 +107,22 @@
     padding: 0 20px;
   }
   @media (max-width: 991px) {
-    .login-container {
+    .verify-email-container {
       margin-top: 40px;
     }
   }
-  .login-title {
+  .check-email-title {
     color: var(--Text-Light-01, #333f4e);
     font: 700 46px/1.22 Poppins, -apple-system, Roboto, Helvetica, sans-serif;
   }
   @media (max-width: 991px) {
-    .login-title {
+    .check-email-title {
       font-size: 40px;
     }
+  }
+  .check-email-subtitle {
+    color: var(--Text-Light-01, #333f4e);
+    font-family: Poppins, sans-serif;
   }
  
   .input-field {
@@ -176,4 +180,6 @@
     height: 60px;
     width: 60px;
   }
-  
+  .email-address-text{
+    font-weight: bold;
+  }

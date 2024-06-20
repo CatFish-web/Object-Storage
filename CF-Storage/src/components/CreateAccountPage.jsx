@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import axios from 'axios';
 import "./CreateAccountPage.css";
 import logo from "../assets/Vector Logo (1).svg";
 
@@ -28,6 +29,8 @@ function MyComponent() {
   });
   const [errors, setErrors] = useState({});
   const navigate = useNavigate();
+  const [message, setMessage] = useState('');
+
 
   const validate = () => {
     const errors = {};
@@ -62,17 +65,27 @@ function MyComponent() {
     setFormData({ ...formData, [id]: value });
   };
 
-  const handleSubmit = (e) => {
+   const  handleSubmit = async (e) => {
     e.preventDefault();
     const validationErrors = validate();
     if (Object.keys(validationErrors).length === 0) {
-      // Submit form data
-      console.log("Form data:", formData);
-      // Simulate sending confirmation email
-      sendConfirmationEmail(formData.email);
+      // // Submit form data
+      // console.log("Form data:", formData);
+      // // Simulate sending confirmation email
+      // sendConfirmationEmail(formData.email);
 
-      // Navigate to the verification page
-      navigate('verify')
+      // // Navigate to the verification page
+      // navigate("verify", {
+      //   state: {
+      //     emailAddress: formData.email,
+      //   },
+      // });
+      try {
+        const response = await axios.post('http://localhost:8000/users/api/create_account', formData);
+        setMessage(response.data.message);
+    } catch (error) {
+        setMessage(error.response.data.error);
+    }
     } else {
       setErrors(validationErrors);
     }
@@ -162,6 +175,7 @@ function MyComponent() {
                 <p className="error">{errors.confirmPassword}</p>
               )}
             </div>
+            {message && <p>{message}</p>}
             <button type="submit" className="create-account-button">
               Create Account
             </button>

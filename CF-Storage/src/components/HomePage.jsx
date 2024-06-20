@@ -1,5 +1,6 @@
 import * as React from "react";
 import logo from '../assets/Vector Logo.svg';
+import upload from '../assets/Upload.svg';
 import "./HomePage.css";
 
 
@@ -8,7 +9,7 @@ const IconTextButton = ({ iconSrc, text, altText, type }) => (
     <img 
       loading="lazy" 
       src={iconSrc} 
-      className={type === 'profile' ? 'profile-icon' : 'icon'} 
+      className={type === 'profile' ? 'profile-icon' : ''} 
       alt={altText} 
     />
     <div className="icon-text">{text}</div>

@@ -33,6 +33,7 @@
   }
 }
 .card {
+  height: 100%;
   background-color: var(--Default-Brand, #7288fa);
   border-radius: 34px;
   padding: 80px;
@@ -187,4 +188,9 @@
 .header-icon-img {
   height: 60px;
   width: 60px;
+}
+
+.error{
+  color: #f10404;
+  font-family: Poppins, sans-serif;
 }

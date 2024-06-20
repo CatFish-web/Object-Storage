@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { useLocation } from 'react-router-dom';
 import "./VerifyPage.css"
 import logo from '../assets/Vector Logo (1).svg';
 import sendMailImage from '../assets/Illustration.svg';
@@ -20,6 +21,9 @@ function Card({ icon, title, subtitle, description, imgSrc, imgAlt }) {
 }
 
 function MyComponent() {
+  const location = useLocation();
+  const { emailAddress } = location.state || {};
+  console.log(emailAddress);
   return (
     <>
       <main className="main-container">
@@ -34,10 +38,10 @@ function MyComponent() {
           />
         </div>
         <div className="right-column">
-          <div className="login-container">
-            <h2 className="login-title">Check your email</h2>
+          <div className="verify-email-container">
+            <h2 className="check-email-title">Check your email</h2>
                 <img src={sendMailImage} />
-                <p>We've sent an email to mitchellensink@gmail.com to verify your account.</p>
+                <p className='check-email-subtitle'>We've sent an email to <span className='email-address-text'>{emailAddress}</span> to verify your account.</p>
             <button type="submit" className="login-button">Login</button>
           </div>
         </div>
