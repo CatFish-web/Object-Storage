@@ -1,8 +1,13 @@
-#views.py
 from django.contrib.auth.models import User
 from django.http import JsonResponse
 from django.shortcuts import redirect
 from django.views.decorators.csrf import csrf_exempt
+from django.core.mail import send_mail
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.utils.encoding import force_bytes
+from django.utils.http import urlencode
+from django.conf import settings
+from django.contrib.auth.tokens import default_token_generator as token_generator
 import json
 from django.core.mail import send_mail
 from django.conf import settings
@@ -46,7 +51,6 @@ def verify_email(request, verification_token):
 def create_user(request):
     if request.method == 'POST':
         data = json.loads(request.body)
-        print(data)
         username = data.get('username')
         password = data.get('password')
         email = data.get('email')
@@ -79,7 +83,18 @@ def create_user(request):
         )
         # user.save()
 
-        return JsonResponse({'message': 'User created successfully'}, status=201)
+
+        token = token_generator.make_token(user)
+        uid = urlsafe_base64_encode(force_bytes(user.pk))
+
+        confirmation_url = f"{request.scheme}://{request.get_host()}/confirm-email?uid={uid}&token={token}"
+
+        # Send email
+        subject = 'Confirm your email address'
+        message = f"Hello {username},\n\nPlease click the link below to confirm your email address:\n{confirmation_url}\n\nThank you!"
+        send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, [email])
+
+        return JsonResponse({'message': 'Please confirm your email address to complete the registration.'}, status=201)
     else:
         return JsonResponse({'error': 'POST method required'}, status=400)
 
