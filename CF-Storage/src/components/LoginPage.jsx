@@ -1,4 +1,5 @@
-import * as React from 'react';
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import "./LoginPage.css"
 import logo from '../assets/Vector Logo (1).svg';
 
@@ -19,6 +20,37 @@ function Card({ icon, title, subtitle, description, imgSrc, imgAlt }) {
 }
 
 function MyComponent() {
+  const [input, setInput] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const navigate = useNavigate();
+
+  const handleLogin = async (e) => {
+    e.preventDefault();
+
+    // Determine if the input is an email or a username
+    const isEmail = input.includes('@');
+    const data = isEmail ? { email: input, password } : { username: input, password };
+    console.log(data);
+    const response = await fetch('http://localhost:8000/users/api/login', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(data),
+    });
+
+    if (response.ok) {
+      const responseData = await response.json();
+      // Save token to local storage or handle authenticated user
+      localStorage.setItem('token', responseData.token);
+      navigate('/dashboard'); // Redirect to a protected route
+    } else {
+      const errorData = await response.json();
+      setError(errorData.detail);
+    }
+  };
+  
   return (
     <>
       <main className="main-container">
@@ -33,7 +65,7 @@ function MyComponent() {
           />
         </div>
         <div className="right-column">
-          <form className="login-container">
+          <form className="login-container" onSubmit={handleLogin}>
             <h2 className="login-title">Login</h2>
             
             <div className="input-wrapper">
@@ -44,6 +76,9 @@ function MyComponent() {
                 className="input-field"
                 placeholder="Enter your Username or Email"
                 aria-label="Enter your Username or Email"
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                required
               />
             </div>
             <div className="input-wrapper">
@@ -54,8 +89,12 @@ function MyComponent() {
                 className="input-field"
                 placeholder="Enter Password"
                 aria-label="Enter Password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
               />
             </div>
+            {error && <p style={{ color: 'red' }}>{error}</p>}
             <button type="submit" className="login-button">Login</button>
             <p className="signup-prompt">
               Don't have an account? <a href="#" className="signup-link">Create Account</a>
