@@ -1,8 +1,6 @@
 from django.urls import path
-from . import views
+from .views import ObjectCreateView
 
-#just a demo
 urlpatterns = [
-    path('users/', views.custom_user_list, name='custom_user_list'),
-    path('users/<int:pk>/', views.custom_user_detail, name='custom_user_detail'),
+    path('uplaod_file/', ObjectCreateView.as_view(), name='object_create'),
 ]

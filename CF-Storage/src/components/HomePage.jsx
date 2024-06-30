@@ -1,38 +1,94 @@
-import * as React from "react";
-import logo from '../assets/Vector Logo.svg';
-import upload from '../assets/Upload.svg';
+import React, { useRef, useState } from "react";
+import axios from "axios";
+import logo from "../assets/Vector Logo.svg";
+import upload from "../assets/Upload.svg";
 import "./HomePage.css";
+import Popover from "../components/FilePopover.jsx";
 
-
-const IconTextButton = ({ iconSrc, text, altText, type }) => (
-  <div className={type === 'profile' ? 'profile-button' : 'icon-text-button'} >
-    <img 
-      loading="lazy" 
-      src={iconSrc} 
-      className={type === 'profile' ? 'profile-icon' : ''} 
-      alt={altText} 
+const IconTextButton = ({ iconSrc, text, altText, type, onClick }) => (
+  <div
+    className={type === "profile" ? "profile-button" : "icon-text-button"}
+    onClick={onClick}
+  >
+    <img
+      loading="lazy"
+      src={iconSrc}
+      className={type === "profile" ? "profile-icon" : ""}
+      alt={altText}
     />
     <div className="icon-text">{text}</div>
   </div>
 );
 
+const FileItem = ({ imgSrc, title, details, altText }) => {
+  const [isToggled, setIsToggled] = useState(false);
 
-const FileItem = ({ imgSrc, title, details, altText }) => (
-  <div className="file-item">
-    <div className="file-item-content">
-      <img loading="lazy" src={imgSrc} className="file-icon" alt={altText} />
-      <div className="file-details">
-        <div className="file-title">{title}</div>
-        <div className="file-info">{details}</div>
+  const handleToggle = () => {
+    setIsToggled((prevState) => !prevState);
+  };
+
+  return (
+    <>
+      <div className="file-item">
+        <div className="file-item-content">
+          <img
+            loading="lazy"
+            src={imgSrc}
+            className="file-icon"
+            alt={altText}
+          />
+          <div className="file-details">
+            <div className="file-title">{title}</div>
+            <div className="file-info">{details}</div>
+          </div>
+        </div>
+        <img
+          loading="lazy"
+          src="https://cdn.builder.io/api/v1/image/assets/TEMP/4328f124125025d4f3dd92757ffb88de4849aea5fe67adab458ddb7195caaadc?apiKey=61b20d1a1e1848d2bcaf0e442b285d46&"
+          className="file-action-icon"
+          alt=""
+          onClick={handleToggle}
+        />
+        {isToggled && <FilePopover />}
+      </div>
+      
+    </>
+  );
+};
+
+const FilePopover = ({}) => (
+  <>
+    <div className="div">
+      <div className="div-2">App School.fig</div>
+      <div className="div-5">
+        <img
+          loading="lazy"
+          src="https://cdn.builder.io/api/v1/image/assets/TEMP/926dadbb5b1c4a288e0397f6c28706a6960c00a13627f11245f7c44d6b11b7f0?"
+          className="img"
+        />
+        <div className="div-6">Share</div>
+      </div>
+      <div className="div-5">
+        <img
+          loading="lazy"
+          src="https://cdn.builder.io/api/v1/image/assets/TEMP/54a084866dca98a8c1c2265b001eadbb6bcea86e97014eeefe0bf1a7cfdba48a?"
+          className="img-2"
+        />
+        <div className="div-6">Download</div>
+      </div>
+      <div className="div-3">
+        <img
+          loading="lazy"
+          src="https://cdn.builder.io/api/v1/image/assets/TEMP/6d311441253fbf2162f3422e3b389a624496183f15680abdea9bc28d3ce29cf6?"
+          className="img"
+        />
+        <div className="div-6">Delete</div>
       </div>
     </div>
-    <img
-      loading="lazy"
-      src="https://cdn.builder.io/api/v1/image/assets/TEMP/4328f124125025d4f3dd92757ffb88de4849aea5fe67adab458ddb7195caaadc?apiKey=61b20d1a1e1848d2bcaf0e442b285d46&"
-      className="file-action-icon"
-      alt=""
-    />
-  </div>
+    {/* <style jsx>{`
+      
+    `}</style> */}
+  </>
 );
 
 function MyComponent() {
@@ -207,13 +263,66 @@ function MyComponent() {
     },
   ];
 
+  const [file, setFile] = useState(null);
+  const [fileName, setFileName] = useState("");
+  const [size, setSize] = useState(0);
+  const [type, setType] = useState("");
+  const fileInputRef = useRef(null);
+
+  const handleFileChange = async (e) => {
+    const selectedFile = e.target.files[0];
+    if (selectedFile) {
+      setFile(selectedFile);
+      setFileName(selectedFile.name);
+      setSize(selectedFile.size);
+      setType(selectedFile.name.split(".").pop()); // Get file extension as type
+
+      // Automatically submit the form after file selection
+      await handleSubmit();
+    }
+  };
+
+  const handleButtonClick = () => {
+    fileInputRef.current.click();
+  };
+
+  const handleSubmit = async () => {
+    // Example: Simulate uploading to cloud storage and get file URL
+    const fileUrl = "https://cloud-storage-url.com/path/to/your/file";
+
+    const data = {
+      file: file,
+      file_name: fileName,
+      size: size,
+      type: type,
+      owner: 1, // Replace with the actual user ID
+      file_url: fileUrl, // Include the URL if needed in the model or API request
+    };
+    console.log(data);
+
+    try {
+      const response = await axios.post(
+        "http://localhost:8000/accounts/objects/",
+        data,
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      console.log(response.data);
+    } catch (error) {
+      console.error("Error uploading file metadata:", error);
+    }
+  };
+
   return (
     <>
       <section className="main-section">
         <header className="main-header">
           <div className="header-left">
             <div className="header-icon">
-              <img className="header-icon-img" src={logo}/>
+              <img className="header-icon-img" src={logo} />
             </div>
             <h1 className="header-title">Storage</h1>
           </div>
@@ -227,12 +336,21 @@ function MyComponent() {
             <span className="search-text">Search ...</span>
           </div>
           <div className="header-right">
+            <input
+              type="file"
+              ref={fileInputRef}
+              onChange={handleFileChange}
+              style={{ display: "none" }}
+              required
+            />
             <IconTextButton
               iconSrc="https://cdn.builder.io/api/v1/image/assets/TEMP/aaf32a8941934dbd526e261b3bc93f8e8f6bb021c640a9266a5dbf94f84d2311?apiKey=61b20d1a1e1848d2bcaf0e442b285d46&"
               text="Upload"
               altText="Upload icon"
               type=""
+              onClick={handleButtonClick}
             />
+
             <IconTextButton
               iconSrc="https://cdn.builder.io/api/v1/image/assets/TEMP/d69d3b342172fb9a9b5e2c6c581363592f20ddbf72e3f4547e22e7db7fb15294?apiKey=61b20d1a1e1848d2bcaf0e442b285d46&"
               text="Mitchel"
@@ -248,13 +366,15 @@ function MyComponent() {
           </p>
           <section className="files-section">
             {fileItems.map((item, index) => (
-              <FileItem
-                key={index}
-                imgSrc={item.imgSrc}
-                title={item.title}
-                details={item.details}
-                altText={item.altText}
-              />
+              <>
+                <FileItem
+                  key={index}
+                  imgSrc={item.imgSrc}
+                  title={item.title}
+                  details={item.details}
+                  altText={item.altText}
+                />
+              </>
             ))}
           </section>
         </main>
