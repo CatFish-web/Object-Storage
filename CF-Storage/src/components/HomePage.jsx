@@ -1,8 +1,7 @@
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import axios from "axios";
 import logo from "../assets/Vector Logo.svg";
 import upload from "../assets/Upload.svg";
-
 import "./HomePage.css";
 import Popover from "../components/FilePopover.jsx";
 
@@ -73,7 +72,7 @@ const FilePopover = ({}) => (
         <img
           loading="lazy"
           src="https://cdn.builder.io/api/v1/image/assets/TEMP/54a084866dca98a8c1c2265b001eadbb6bcea86e97014eeefe0bf1a7cfdba48a?"
-          className="img"
+          className="img-2"
         />
         <div className="div-6">Download</div>
       </div>
@@ -263,57 +262,153 @@ function MyComponent() {
       altText: "Yu App",
     },
   ];
-
-  
   const [file, setFile] = useState(null);
   const [fileName, setFileName] = useState("");
   const [size, setSize] = useState(0);
   const [type, setType] = useState("");
-  const [lastModified, setLastModified] = useState("");
   const fileInputRef = useRef(null);
 
-  const handleFileChange = async (e) => {
+  const handleFileChange = (e) => {
     const selectedFile = e.target.files[0];
-  
     if (selectedFile) {
       setFile(selectedFile);
       setFileName(selectedFile.name);
       setSize(selectedFile.size);
-      setType(selectedFile.name.split(".").pop()); // Get file extension as type
-
-      // Automatically submit the form after file selection
-      await handleSubmit();
+      setType(selectedFile.type);
+      handleSubmit(selectedFile, selectedFile.name, selectedFile.size, selectedFile.type);
     }
   };
 
-  const handleButtonClick = () => {
-    fileInputRef.current.click();
-  };
+  const handleSubmit = async (file, fileName, size, type) => {
+    const data = new FormData();
+    data.append("file", file);
+    data.append("file_name", fileName);
+    data.append("size", size);
+    data.append("type", type);
 
-  const handleSubmit = async () => {
-    const data = {
-      file: file,
-      file_name: fileName,
-      size: size,
-      type: type,
-    };
-    console.log(data);
+    console.log({ file, file_name: fileName, size, type });
 
     try {
-      const response = await axios.post(
-        "http://localhost:8000/objects/upload_file",
-        data,
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
+      const response = await axios.post('http://localhost:8000/objects/upload_file', data, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
         }
-      );
+      });
       console.log(response.data);
     } catch (error) {
       console.error("Error uploading file metadata:", error);
     }
   };
+
+  const handleButtonClick = () => {
+    if (fileInputRef.current) {
+      fileInputRef.current.click();
+    }
+  };
+  
+//   const [file, setFile] = useState(null);
+//   const [fileName, setFileName] = useState("");
+//   const [size, setSize] = useState(0);
+//   const [type, setType] = useState("");
+
+//   // const fileInputRef = useRef(null);
+
+
+//   const handleFileChange = async (e) => {
+//     const selectedFile = e.target.files[0];
+  
+//     if (selectedFile) {
+//       setFile(selectedFile);
+//       setFileName(selectedFile.name);
+//       setSize(selectedFile.size);
+//       setType(selectedFile.name.split(".").pop()); // Get file extension as type
+
+//       // Automatically submit the form after file selection
+//       // await handleSubmit();
+//     }
+//   };
+
+//   const handleSubmit = async (e) => {
+//     e.preventDefault();
+//     if (!file) {
+//       console.error("No file selected");
+//       return;
+//     }
+
+//     const data = new FormData();
+//     data.append("file", file);
+//     data.append("file_name", fileName);
+//     data.append("size", size);
+//     data.append("type", type)
+
+//     console.log({ file, file_name: fileName, size, type });
+
+//   // useEffect(() => {
+//   //   if(file){
+//   //     const data = {
+//   //       file: file,
+//   //       file_name: fileName,
+//   //       size: size,
+//   //       type: type,
+//   //   };
+//   try {
+//     const response = await axios.post('http://localhost:8000/objects/upload_file', data, {
+//       headers: {
+//         'Content-Type': 'multipart/form-data'
+//       }
+//     });
+//     console.log(response.data);
+//   } catch (error) {
+//     console.error("Error uploading file metadata:", error);
+//   }
+// };
+
+
+
+//   //     const uploadFile = async () => {
+//   //       try {
+//   //         const response = await axios.post('http://localhost:8000/objects/upload_file', data);
+//   //         console.log(response.data);
+//   //       } catch (error) {
+//   //         console.error("Error uploading file metadata:", error);
+//   //       }
+//   //     };
+
+//   //     uploadFile();
+//   //   }
+
+//   // }, [file, fileName, size, type]);
+
+//   // const handleButtonClick = () => {
+//   //   fileInputRef.current.click();
+//   // };
+
+//   // const handleSubmit = async () => {
+//   //   const data = {
+//   //     file: file,
+//   //     file_name: fileName,
+//   //     size: size,
+//   //     type: type,
+//   //   };
+//   //   console.log(data);
+
+//   //   try {
+//   //     const response = await axios.post('http://localhost:8000/objects/upload_file', data);
+
+//   //     // const response = await axios.post(
+//   //     //   "http://localhost:8000/objects/upload_file",
+//   //     //   data,
+//   //     //   {
+//   //     //     headers: {
+//   //     //       "Content-Type": "application/json",
+//   //     //     },
+//   //     //   }
+//   //     // );
+//   //     console.log(response.data);
+//   //   } catch (error) {
+//   //     console.error("Error uploading file metadata:", error);
+//   //   }
+//   // };
 
   return (
     <>

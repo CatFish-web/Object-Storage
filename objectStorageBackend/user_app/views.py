@@ -22,11 +22,10 @@ from django.conf import settings
 from objects_app.models import CustomUser
 # from myapp.utils import create_bucket
 
+
 token_generator = PasswordResetTokenGenerator()
-user_logged_in = None
 
 # User = get_user_model()
-custom_user = None
 
 
 def verify_email(request, verification_token):
@@ -41,13 +40,14 @@ def verify_email(request, verification_token):
 
     # Activate the user (optional)
     user.is_active = True
+    CustomUser.objects.create(username=user_data['username'], email=user_data['email'])
     user.save()
-    custom_user = CustomUser.objects.create(username=user_data['username'], email=user_data['email'])
+
 
     # Delete the verification token from cache
     cache.delete(verification_token)
 
-    return redirect('http://localhost:5174/verify')
+    return redirect('http://localhost:5173/verify')
 
 
 @csrf_exempt  # Only for demonstration, use appropriate CSRF protection in production
@@ -109,8 +109,9 @@ def login_view(request):
 
     # Check the password
     if check_password(password, user.password):
+        settings.LOGGED_IN_USER = CustomUser.objects.get(username=user.username)
+        print("cus", settings.LOGGED_IN_USER)
         login(request, user)
-        user_logged_in = custom_user
         return JsonResponse({
             'message': 'Login successful',
             'username': user.username,
