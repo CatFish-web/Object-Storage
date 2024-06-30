@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { useLocation } from 'react-router-dom';
+import { useLocation } from "react-router-dom";
 import axios from "axios";
 import logo from "../assets/Vector Logo.svg";
 import upload from "../assets/Upload.svg";
@@ -20,6 +20,63 @@ const IconTextButton = ({ iconSrc, text, altText, type, onClick }) => (
     <div className="icon-text">{text}</div>
   </div>
 );
+
+const PersonCard = ({ username, email, access }) => {
+  <div>
+    <div className="person-description">
+      <div className="person-username">{username}</div>
+      <div className="person-email">{email}</div>
+    </div>
+    <div>
+      <img src="" alt="" />
+    </div>
+    <input
+      type="checkbox"
+      className={access === "accessed" ? "checked" : "unchecked"}
+    ></input>
+  </div>;
+};
+
+const AddPeoplePopup = ({}) => {
+  const peopleList = [
+    {
+      username: "ali",
+      email: "ali@gmail.com",
+      access: "accessed",
+    },
+    {
+      username: "nanaz",
+      email: "naz@gmail.com",
+      access: "",
+    },
+  ];
+  return (
+    <div className="popup-add-people">
+      <div className="popup-header-container">
+        <div className="popup-header">
+          <div className="back-button"></div>
+          <div className="header-title">Add People</div>
+        </div>
+        <div className="search-people"></div>
+      </div>
+      <section className="people-list">
+        {peopleList.map((person, index) => (
+          <>
+            <PersonCard
+              key={index}
+              username={person.username}
+              email={person.email}
+              access={person.access}
+            />
+          </>
+        ))}
+      </section>
+      <div className="popup-footer">
+        <button className="continue-button">Continue</button>
+      </div>
+    </div>
+  );
+};
 
 const FileItem = ({ imgSrc, title, details, altText }) => {
   const [isToggled, setIsToggled] = useState(false);
@@ -52,7 +109,6 @@ const FileItem = ({ imgSrc, title, details, altText }) => {
         />
         {isToggled && <FilePopover />}
       </div>
-      
     </>
   );
 };
@@ -265,7 +321,7 @@ function MyComponent() {
   ];
 
   const location = useLocation();
-  const { username, email } = location.state || { username: '', email: '' };
+  const { username, email } = location.state || { username: "", email: "" };
 
   const [file, setFile] = useState(null);
   const [fileName, setFileName] = useState("");
@@ -280,7 +336,12 @@ function MyComponent() {
       setFileName(selectedFile.name);
       setSize(selectedFile.size);
       setType(selectedFile.type);
-      handleSubmit(selectedFile, selectedFile.name, selectedFile.size, selectedFile.type);
+      handleSubmit(
+        selectedFile,
+        selectedFile.name,
+        selectedFile.size,
+        selectedFile.type
+      );
     }
   };
 
@@ -294,11 +355,15 @@ function MyComponent() {
     console.log({ file, file_name: fileName, size, type });
 
     try {
-      const response = await axios.post('http://localhost:8000/objects/upload_file', data, {
-        headers: {
-          'Content-Type': 'multipart/form-data'
+      const response = await axios.post(
+        "http://localhost:8000/objects/upload_file",
+        data,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
         }
-      });
+      );
       console.log(response.data);
     } catch (error) {
       console.error("Error uploading file metadata:", error);
@@ -310,110 +375,107 @@ function MyComponent() {
       fileInputRef.current.click();
     }
   };
-  
-//   const [file, setFile] = useState(null);
-//   const [fileName, setFileName] = useState("");
-//   const [size, setSize] = useState(0);
-//   const [type, setType] = useState("");
 
-//   // const fileInputRef = useRef(null);
+  //   const [file, setFile] = useState(null);
+  //   const [fileName, setFileName] = useState("");
+  //   const [size, setSize] = useState(0);
+  //   const [type, setType] = useState("");
 
+  //   // const fileInputRef = useRef(null);
 
-//   const handleFileChange = async (e) => {
-//     const selectedFile = e.target.files[0];
-  
-//     if (selectedFile) {
-//       setFile(selectedFile);
-//       setFileName(selectedFile.name);
-//       setSize(selectedFile.size);
-//       setType(selectedFile.name.split(".").pop()); // Get file extension as type
+  //   const handleFileChange = async (e) => {
+  //     const selectedFile = e.target.files[0];
 
-//       // Automatically submit the form after file selection
-//       // await handleSubmit();
-//     }
-//   };
+  //     if (selectedFile) {
+  //       setFile(selectedFile);
+  //       setFileName(selectedFile.name);
+  //       setSize(selectedFile.size);
+  //       setType(selectedFile.name.split(".").pop()); // Get file extension as type
 
-//   const handleSubmit = async (e) => {
-//     e.preventDefault();
-//     if (!file) {
-//       console.error("No file selected");
-//       return;
-//     }
+  //       // Automatically submit the form after file selection
+  //       // await handleSubmit();
+  //     }
+  //   };
 
-//     const data = new FormData();
-//     data.append("file", file);
-//     data.append("file_name", fileName);
-//     data.append("size", size);
-//     data.append("type", type)
+  //   const handleSubmit = async (e) => {
+  //     e.preventDefault();
+  //     if (!file) {
+  //       console.error("No file selected");
+  //       return;
+  //     }
 
-//     console.log({ file, file_name: fileName, size, type });
+  //     const data = new FormData();
+  //     data.append("file", file);
+  //     data.append("file_name", fileName);
+  //     data.append("size", size);
+  //     data.append("type", type)
 
-//   // useEffect(() => {
-//   //   if(file){
-//   //     const data = {
-//   //       file: file,
-//   //       file_name: fileName,
-//   //       size: size,
-//   //       type: type,
-//   //   };
-//   try {
-//     const response = await axios.post('http://localhost:8000/objects/upload_file', data, {
-//       headers: {
-//         'Content-Type': 'multipart/form-data'
-//       }
-//     });
-//     console.log(response.data);
-//   } catch (error) {
-//     console.error("Error uploading file metadata:", error);
-//   }
-// };
+  //     console.log({ file, file_name: fileName, size, type });
 
+  //   // useEffect(() => {
+  //   //   if(file){
+  //   //     const data = {
+  //   //       file: file,
+  //   //       file_name: fileName,
+  //   //       size: size,
+  //   //       type: type,
+  //   //   };
+  //   try {
+  //     const response = await axios.post('http://localhost:8000/objects/upload_file', data, {
+  //       headers: {
+  //         'Content-Type': 'multipart/form-data'
+  //       }
+  //     });
+  //     console.log(response.data);
+  //   } catch (error) {
+  //     console.error("Error uploading file metadata:", error);
+  //   }
+  // };
 
+  //   //     const uploadFile = async () => {
+  //   //       try {
+  //   //         const response = await axios.post('http://localhost:8000/objects/upload_file', data);
+  //   //         console.log(response.data);
+  //   //       } catch (error) {
+  //   //         console.error("Error uploading file metadata:", error);
+  //   //       }
+  //   //     };
 
-//   //     const uploadFile = async () => {
-//   //       try {
-//   //         const response = await axios.post('http://localhost:8000/objects/upload_file', data);
-//   //         console.log(response.data);
-//   //       } catch (error) {
-//   //         console.error("Error uploading file metadata:", error);
-//   //       }
-//   //     };
+  //   //     uploadFile();
+  //   //   }
 
-//   //     uploadFile();
-//   //   }
+  //   // }, [file, fileName, size, type]);
 
-//   // }, [file, fileName, size, type]);
+  //   // const handleButtonClick = () => {
+  //   //   fileInputRef.current.click();
+  //   // };
 
-//   // const handleButtonClick = () => {
-//   //   fileInputRef.current.click();
-//   // };
+  //   // const handleSubmit = async () => {
+  //   //   const data = {
+  //   //     file: file,
+  //   //     file_name: fileName,
+  //   //     size: size,
+  //   //     type: type,
+  //   //   };
+  //   //   console.log(data);
 
-//   // const handleSubmit = async () => {
-//   //   const data = {
-//   //     file: file,
-//   //     file_name: fileName,
-//   //     size: size,
-//   //     type: type,
-//   //   };
-//   //   console.log(data);
+  //   //   try {
+  //   //     const response = await axios.post('http://localhost:8000/objects/upload_file', data);
 
-//   //   try {
-//   //     const response = await axios.post('http://localhost:8000/objects/upload_file', data);
-
-//   //     // const response = await axios.post(
-//   //     //   "http://localhost:8000/objects/upload_file",
-//   //     //   data,
-//   //     //   {
-//   //     //     headers: {
-//   //     //       "Content-Type": "application/json",
-//   //     //     },
-//   //     //   }
-//   //     // );
-//   //     console.log(response.data);
-//   //   } catch (error) {
-//   //     console.error("Error uploading file metadata:", error);
-//   //   }
-//   // };
+  //   //     // const response = await axios.post(
+  //   //     //   "http://localhost:8000/objects/upload_file",
+  //   //     //   data,
+  //   //     //   {
+  //   //     //     headers: {
+  //   //     //       "Content-Type": "application/json",
+  //   //     //     },
+  //   //     //   }
+  //   //     // );
+  //   //     console.log(response.data);
+  //   //   } catch (error) {
+  //   //     console.error("Error uploading file metadata:", error);
+  //   //   }
+  //   // };
 
   return (
     <>
@@ -463,6 +525,7 @@ function MyComponent() {
           <p className="total-storage">
             <span className="total-label">Total:</span> 12GB
           </p>
+          <AddPeoplePopup />
           <section className="files-section">
             {fileItems.map((item, index) => (
               <>
