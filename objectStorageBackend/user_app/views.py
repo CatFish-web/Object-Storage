@@ -47,7 +47,7 @@ def verify_email(request, verification_token):
     # Delete the verification token from cache
     cache.delete(verification_token)
 
-    return redirect('http://localhost:5173/verify')
+    return redirect('http://localhost:5173/verify/login')
 
 
 @csrf_exempt  # Only for demonstration, use appropriate CSRF protection in production
