@@ -13,6 +13,8 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth import login
 from django.contrib.auth.hashers import check_password
 from django.views.decorators.http import require_http_methods
+from django.conf import settings
+# from myapp.utils import create_bucket
 
 token_generator = PasswordResetTokenGenerator()
 
@@ -109,3 +111,17 @@ def login_view(request):
         }, status=200)
     else:
         return JsonResponse({'error': 'Invalid credentials'}, status=400)
+
+
+# def upload_file_view(request):
+#     bucket_name = 'sample-bucket_name'
+#     endpoint_url = settings.AWS_ENDPOINT_URL
+#     aws_access_key_id = settings.AWS_ACCESS_KEY_ID
+#     aws_secret_access_key = settings.AWS_SECRET_ACCESS_KEY
+#
+#     success = create_bucket(bucket_name, endpoint_url, aws_access_key_id, aws_secret_access_key)
+#
+#     if success:
+#         return JsonResponse({'message': 'Bucket created successfully'}, status=200)
+#     else:
+#         return JsonResponse({'message': 'Failed to create bucket'}, status=500)
