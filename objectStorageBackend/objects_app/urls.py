@@ -1,6 +1,6 @@
 from django.urls import path
-from .views import ObjectCreateView
+from .views import upload_file_view
 
 urlpatterns = [
-    path('uplaod_file/', ObjectCreateView.as_view(), name='object_create'),
+    path('uplaod_file/', upload_file_view, name='upload-file'),
 ]

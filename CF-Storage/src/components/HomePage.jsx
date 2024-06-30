@@ -302,7 +302,7 @@ function MyComponent() {
 
     try {
       const response = await axios.post(
-        "http://localhost:8000/accounts/objects/",
+        "http://localhost:8000/objects/upload_file",
         data,
         {
           headers: {

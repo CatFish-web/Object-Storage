@@ -1,5 +1,5 @@
 from django.core.management.base import BaseCommand
-from user_app.utils import upload_file
+from objects_app.utils import upload_file
 
 
 class Command(BaseCommand):

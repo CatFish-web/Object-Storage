@@ -19,12 +19,14 @@ from django.contrib.auth import login
 from django.contrib.auth.hashers import check_password
 from django.views.decorators.http import require_http_methods
 from django.conf import settings
+from objects_app.models import CustomUser
 # from myapp.utils import create_bucket
 
 token_generator = PasswordResetTokenGenerator()
-
+user_logged_in = None
 
 # User = get_user_model()
+custom_user = None
 
 
 def verify_email(request, verification_token):
@@ -40,6 +42,7 @@ def verify_email(request, verification_token):
     # Activate the user (optional)
     user.is_active = True
     user.save()
+    custom_user = CustomUser.objects.create(username=user_data['username'], email=user_data['email'])
 
     # Delete the verification token from cache
     cache.delete(verification_token)
@@ -81,18 +84,6 @@ def create_user(request):
             [email],
             fail_silently=False,
         )
-        # user.save()
-
-
-        token = token_generator.make_token(user)
-        uid = urlsafe_base64_encode(force_bytes(user.pk))
-
-        confirmation_url = f"{request.scheme}://{request.get_host()}/confirm-email?uid={uid}&token={token}"
-
-        # Send email
-        subject = 'Confirm your email address'
-        message = f"Hello {username},\n\nPlease click the link below to confirm your email address:\n{confirmation_url}\n\nThank you!"
-        send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, [email])
 
         return JsonResponse({'message': 'Please confirm your email address to complete the registration.'}, status=201)
     else:
@@ -119,6 +110,7 @@ def login_view(request):
     # Check the password
     if check_password(password, user.password):
         login(request, user)
+        user_logged_in = custom_user
         return JsonResponse({
             'message': 'Login successful',
             'username': user.username,
@@ -128,15 +120,4 @@ def login_view(request):
         return JsonResponse({'error': 'Invalid credentials'}, status=400)
 
 
-# def upload_file_view(request):
-#     bucket_name = 'sample-bucket_name'
-#     endpoint_url = settings.AWS_ENDPOINT_URL
-#     aws_access_key_id = settings.AWS_ACCESS_KEY_ID
-#     aws_secret_access_key = settings.AWS_SECRET_ACCESS_KEY
-#
-#     success = create_bucket(bucket_name, endpoint_url, aws_access_key_id, aws_secret_access_key)
-#
-#     if success:
-#         return JsonResponse({'message': 'Bucket created successfully'}, status=200)
-#     else:
-#         return JsonResponse({'message': 'Failed to create bucket'}, status=500)
+
