@@ -262,10 +262,6 @@ function MyComponent() {
       altText: "Yu App",
     },
   ];
-<<<<<<< Updated upstream
-
-=======
->>>>>>> Stashed changes
   const [file, setFile] = useState(null);
   const [fileName, setFileName] = useState("");
   const [size, setSize] = useState(0);
@@ -290,23 +286,7 @@ function MyComponent() {
     data.append("size", size);
     data.append("type", type);
 
-<<<<<<< Updated upstream
-  const handleSubmit = async () => {
-    // Example: Simulate uploading to cloud storage and get file URL
-    const fileUrl = "https://cloud-storage-url.com/path/to/your/file";
-
-    const data = {
-      file: file,
-      file_name: fileName,
-      size: size,
-      type: type,
-      owner: 1, // Replace with the actual user ID
-      file_url: fileUrl, // Include the URL if needed in the model or API request
-    };
-    console.log(data);
-=======
     console.log({ file, file_name: fileName, size, type });
->>>>>>> Stashed changes
 
     try {
       const response = await axios.post('http://localhost:8000/objects/upload_file', data, {
