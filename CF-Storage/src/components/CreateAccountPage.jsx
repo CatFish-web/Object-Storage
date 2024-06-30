@@ -69,17 +69,13 @@ function MyComponent() {
     e.preventDefault();
     const validationErrors = validate();
     if (Object.keys(validationErrors).length === 0) {
-      // // Submit form data
-      // console.log("Form data:", formData);
-      // // Simulate sending confirmation email
-      // sendConfirmationEmail(formData.email);
 
-      // // Navigate to the verification page
-      // navigate("verify", {
-      //   state: {
-      //     emailAddress: formData.email,
-      //   },
-      // });
+      // Navigate to the verification page
+      navigate("/verify", {
+        state: {
+          emailAddress: formData.email,
+        },
+      });
       try {
         const response = await axios.post('http://localhost:8000/users/api/create_account', formData);
         setMessage(response.data.message);
