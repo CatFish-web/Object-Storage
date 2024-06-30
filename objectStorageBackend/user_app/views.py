@@ -27,6 +27,7 @@ def create_user(request):
         if User.objects.filter(email=email).exists():
             return JsonResponse({'error': 'Email already exists'}, status=400)
 
+<<<<<<< Updated upstream
         user = User.objects.create_user(username=username, password=password, email=email, is_active=False)
         user.save()
 
@@ -39,6 +40,25 @@ def create_user(request):
         subject = 'Confirm your email address'
         message = f"Hello {username},\n\nPlease click the link below to confirm your email address:\n{confirmation_url}\n\nThank you!"
         send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, [email])
+=======
+        # Generate a verification token
+        verification_token = str(uuid.uuid4())
+
+        # Save the verification token in cache with expiration
+        cache.set(verification_token, {'username': username, 'password': password, 'email': email},
+                  timeout=86400)  # 24 hours
+
+        # Send the verification email
+        verification_link = f"http://localhost:8000/users/verify-email/{verification_token}"
+
+        send_mail(
+            'Welcome to Our Website',
+            f'Thank you for signing up. You can log in here: {verification_link}',
+            settings.EMAIL_HOST_USER,
+            [email],
+            fail_silently=False,
+        )
+>>>>>>> Stashed changes
 
         return JsonResponse({'message': 'Please confirm your email address to complete the registration.'}, status=201)
     else:

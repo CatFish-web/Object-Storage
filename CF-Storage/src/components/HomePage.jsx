@@ -2,6 +2,7 @@ import React, { useRef, useState } from "react";
 import axios from "axios";
 import logo from "../assets/Vector Logo.svg";
 import upload from "../assets/Upload.svg";
+
 import "./HomePage.css";
 import Popover from "../components/FilePopover.jsx";
 
@@ -72,7 +73,7 @@ const FilePopover = ({}) => (
         <img
           loading="lazy"
           src="https://cdn.builder.io/api/v1/image/assets/TEMP/54a084866dca98a8c1c2265b001eadbb6bcea86e97014eeefe0bf1a7cfdba48a?"
-          className="img-2"
+          className="img"
         />
         <div className="div-6">Download</div>
       </div>
@@ -263,14 +264,17 @@ function MyComponent() {
     },
   ];
 
+  
   const [file, setFile] = useState(null);
   const [fileName, setFileName] = useState("");
   const [size, setSize] = useState(0);
   const [type, setType] = useState("");
+  const [lastModified, setLastModified] = useState("");
   const fileInputRef = useRef(null);
 
   const handleFileChange = async (e) => {
     const selectedFile = e.target.files[0];
+  
     if (selectedFile) {
       setFile(selectedFile);
       setFileName(selectedFile.name);
@@ -287,16 +291,11 @@ function MyComponent() {
   };
 
   const handleSubmit = async () => {
-    // Example: Simulate uploading to cloud storage and get file URL
-    const fileUrl = "https://cloud-storage-url.com/path/to/your/file";
-
     const data = {
       file: file,
       file_name: fileName,
       size: size,
       type: type,
-      owner: 1, // Replace with the actual user ID
-      file_url: fileUrl, // Include the URL if needed in the model or API request
     };
     console.log(data);
 
