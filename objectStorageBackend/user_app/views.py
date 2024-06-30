@@ -1,5 +1,6 @@
 from django.contrib.auth.models import User
 from django.http import JsonResponse
+from django.shortcuts import redirect
 from django.views.decorators.csrf import csrf_exempt
 from django.core.mail import send_mail
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
@@ -8,6 +9,45 @@ from django.utils.http import urlencode
 from django.conf import settings
 from django.contrib.auth.tokens import default_token_generator as token_generator
 import json
+from django.core.mail import send_mail
+from django.conf import settings
+from django.core.cache import cache
+import uuid
+from django.contrib.auth.tokens import PasswordResetTokenGenerator
+from django.contrib.auth import get_user_model
+from django.contrib.auth import login
+from django.contrib.auth.hashers import check_password
+from django.views.decorators.http import require_http_methods
+from django.conf import settings
+from objects_app.models import CustomUser
+# from myapp.utils import create_bucket
+
+token_generator = PasswordResetTokenGenerator()
+user_logged_in = None
+
+# User = get_user_model()
+custom_user = None
+
+
+def verify_email(request, verification_token):
+    # Retrieve user data from cache using the verification token
+    user_data = cache.get(verification_token)
+    if user_data is None:
+        return JsonResponse({'error': 'Invalid or expired token'}, status=400)
+
+    # Create the user
+    user = User.objects.create_user(username=user_data['username'], email=user_data['email'],
+                                    password=user_data['password'])
+
+    # Activate the user (optional)
+    user.is_active = True
+    user.save()
+    custom_user = CustomUser.objects.create(username=user_data['username'], email=user_data['email'])
+
+    # Delete the verification token from cache
+    cache.delete(verification_token)
+
+    return redirect('http://localhost:5174/verify')
 
 
 @csrf_exempt  # Only for demonstration, use appropriate CSRF protection in production
@@ -27,20 +67,6 @@ def create_user(request):
         if User.objects.filter(email=email).exists():
             return JsonResponse({'error': 'Email already exists'}, status=400)
 
-<<<<<<< Updated upstream
-        user = User.objects.create_user(username=username, password=password, email=email, is_active=False)
-        user.save()
-
-        token = token_generator.make_token(user)
-        uid = urlsafe_base64_encode(force_bytes(user.pk))
-
-        confirmation_url = f"{request.scheme}://{request.get_host()}/confirm-email?uid={uid}&token={token}"
-
-        # Send email
-        subject = 'Confirm your email address'
-        message = f"Hello {username},\n\nPlease click the link below to confirm your email address:\n{confirmation_url}\n\nThank you!"
-        send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, [email])
-=======
         # Generate a verification token
         verification_token = str(uuid.uuid4())
 
@@ -58,8 +84,41 @@ def create_user(request):
             [email],
             fail_silently=False,
         )
->>>>>>> Stashed changes
 
         return JsonResponse({'message': 'Please confirm your email address to complete the registration.'}, status=201)
     else:
         return JsonResponse({'error': 'POST method required'}, status=400)
+
+
+@csrf_exempt
+@require_http_methods(["POST"])
+def login_view(request):
+    data = json.loads(request.body.decode("utf-8"))
+    identifier = data.get('username')  # This can be either email or username
+    password = data.get('password')
+
+    try:
+        # Try to get the user by email
+        user = User.objects.get(email=identifier)
+    except User.DoesNotExist:
+        try:
+            # If not found by email, try to get the user by username
+            user = User.objects.get(username=identifier)
+        except User.DoesNotExist:
+            return JsonResponse({'error': 'Invalid credentials'}, status=400)
+
+    # Check the password
+    if check_password(password, user.password):
+        print("cus", custom_user)
+        user_logged_in = custom_user
+        login(request, user)
+        return JsonResponse({
+            'message': 'Login successful',
+            'username': user.username,
+            'email': user.email
+        }, status=200)
+    else:
+        return JsonResponse({'error': 'Invalid credentials'}, status=400)
+
+
+
