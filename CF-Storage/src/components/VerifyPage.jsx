@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { useLocation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import "./VerifyPage.css"
 import logo from '../assets/Vector Logo (1).svg';
 import sendMailImage from '../assets/Illustration.svg';
@@ -23,7 +24,12 @@ function Card({ icon, title, subtitle, description, imgSrc, imgAlt }) {
 function MyComponent() {
   const location = useLocation();
   const { emailAddress } = location.state || {};
+  const navigate = useNavigate();
+
   console.log(emailAddress);
+  const handleNavigateLogin = () =>{
+    navigate("/login");
+  }
   return (
     <>
       <main className="main-container">
@@ -42,7 +48,7 @@ function MyComponent() {
             <h2 className="check-email-title">Check your email</h2>
                 <img src={sendMailImage} />
                 <p className='check-email-subtitle'>We've sent an email to <span className='email-address-text'>{emailAddress}</span> to verify your account.</p>
-            <button type="submit" className="login-button">Login</button>
+            <button type="submit" className="login-button" onClick={handleNavigateLogin}>Login</button>
           </div>
         </div>
       </main>

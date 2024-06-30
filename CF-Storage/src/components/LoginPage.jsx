@@ -42,10 +42,12 @@ function MyComponent() {
 
     if (response.ok) {
       const responseData = await response.json();
+      const {username, email} = responseData
+      console.log(email)
       // Save token to local storage or handle authenticated user
       // localStorage.setItem('token', responseData.token);
       // navigate('/dashboard'); // Redirect to a protected route
-      console.log(response)
+      navigate('/', {state: {username, email}})
     } else {
       const errorData = await response.json();
       setError(errorData.detail);
