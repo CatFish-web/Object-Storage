@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
+import { useLocation } from 'react-router-dom';
 import axios from "axios";
 import logo from "../assets/Vector Logo.svg";
 import upload from "../assets/Upload.svg";
@@ -262,6 +263,10 @@ function MyComponent() {
       altText: "Yu App",
     },
   ];
+
+  const location = useLocation();
+  const { username, email } = location.state || { username: '', email: '' };
+
   const [file, setFile] = useState(null);
   const [fileName, setFileName] = useState("");
   const [size, setSize] = useState(0);
@@ -447,7 +452,7 @@ function MyComponent() {
 
             <IconTextButton
               iconSrc="https://cdn.builder.io/api/v1/image/assets/TEMP/d69d3b342172fb9a9b5e2c6c581363592f20ddbf72e3f4547e22e7db7fb15294?apiKey=61b20d1a1e1848d2bcaf0e442b285d46&"
-              text="Mitchel"
+              text={username}
               altText="Profile icon"
               type="profile"
             />
