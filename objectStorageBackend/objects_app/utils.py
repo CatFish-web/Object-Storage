@@ -70,8 +70,9 @@ def objects_list(bucket_name, endpoint_url, aws_access_key_id, aws_secret_access
 
             for obj in bucket.objects.all():
                 logging.info(f"object_name: {obj.key}, last_modified: {obj.last_modified}")
+                object_key = obj.key
 
-            return True
+            return object_key
 
         except ClientError as e:
             logging.error(e)
