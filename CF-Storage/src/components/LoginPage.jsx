@@ -32,7 +32,7 @@ function MyComponent() {
     const isEmail = input.includes('@');
     const data = isEmail ? { email: input, password } : { username: input, password };
     console.log(data);
-    const response = await fetch('http://localhost:8000/users/api/login', {
+    const response = await fetch('http://localhost:8000/users/login', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -43,8 +43,9 @@ function MyComponent() {
     if (response.ok) {
       const responseData = await response.json();
       // Save token to local storage or handle authenticated user
-      localStorage.setItem('token', responseData.token);
-      navigate('/dashboard'); // Redirect to a protected route
+      // localStorage.setItem('token', responseData.token);
+      // navigate('/dashboard'); // Redirect to a protected route
+      console.log(response)
     } else {
       const errorData = await response.json();
       setError(errorData.detail);
