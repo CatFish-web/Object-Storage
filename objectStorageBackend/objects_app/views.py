@@ -98,9 +98,12 @@ def objects_list_view(request):
             # Combine both query sets into a single list
             list_of_objects = list(owned_objects) + list(accessed_objects)
 
+            # Serialize the list of objects
+            serialized_objects = ObjectSerializer(list_of_objects, many=True).data
+
             return JsonResponse({
                 'message': 'List of objects showed successfully',
-                'list_of_objects': list_of_objects
+                'list_of_objects': serialized_objects
             }, status=200)
 
         else:
