@@ -62,7 +62,7 @@ def download_file_view(request):
     aws_secret_access_key = settings.AWS_SECRET_ACCESS_KEY
 
     if request.method == 'POST':
-        file = request.body
+        file = json.loads(request.body)
         file_name = file["file_name"]
         object_id = file["object_id"]
         file_format = file["type"]
@@ -98,9 +98,12 @@ def objects_list_view(request):
             # Combine both query sets into a single list
             list_of_objects = list(owned_objects) + list(accessed_objects)
 
+            # Serialize the list of objects
+            serialized_objects = ObjectSerializer(list_of_objects, many=True).data
+
             return JsonResponse({
                 'message': 'List of objects showed successfully',
-                'list_of_objects': list_of_objects
+                'list_of_objects': serialized_objects
             }, status=200)
 
         else:
