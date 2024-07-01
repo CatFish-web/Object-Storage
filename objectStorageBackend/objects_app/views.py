@@ -6,7 +6,7 @@ from .models import Object, CustomUser
 from .serializers import ObjectSerializer
 from django.http import JsonResponse
 from django.conf import settings
-from objects_app.utils import upload_file, objects_list, download_file
+from objects_app.utils import upload_file, objects_list, download_file, delete_file
 
 
 # class ObjectCreateView(generics.CreateAPIView):
@@ -62,7 +62,7 @@ def download_file_view(request):
     aws_secret_access_key = settings.AWS_SECRET_ACCESS_KEY
 
     if request.method == 'POST':
-        file = request.body
+        file = json.loads(request.body)
         file_name = file["file_name"]
         object_id = file["object_id"]
         file_format = file["type"]
@@ -73,7 +73,7 @@ def download_file_view(request):
         if success:
             return JsonResponse({'message': 'File downloaded successfully'}, status=200)
         else:
-            return JsonResponse({'message': 'Failed to upload file'}, status=500)
+            return JsonResponse({'message': 'Failed to download file'}, status=500)
 
     else:
         return JsonResponse({'message': 'Invalid request method'}, status=405)
@@ -108,3 +108,22 @@ def objects_list_view(request):
     else:
         return JsonResponse({'error': 'GET method required'}, status=400)
 
+
+@csrf_exempt
+def delete_file_view(request):
+    bucket_name = 'object-storage-web-project'
+    endpoint_url = settings.AWS_ENDPOINT_URL
+    aws_access_key_id = settings.AWS_ACCESS_KEY_ID
+    aws_secret_access_key = settings.AWS_SECRET_ACCESS_KEY
+
+    if request.method == 'POST':
+        file = request.body
+        object_name = file["object_name"]
+        success = delete_file(bucket_name, endpoint_url, aws_access_key_id, aws_secret_access_key, object_name)
+
+        if success:
+            return JsonResponse({'message': 'File deleted successfully'}, status=200)
+        else:
+            return JsonResponse({'message': 'Failed to delete file'}, status=500)
+    else:
+        return JsonResponse({'error': 'POST method required'}, status=400)
