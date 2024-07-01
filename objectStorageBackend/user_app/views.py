@@ -47,7 +47,7 @@ def verify_email(request, verification_token):
     # Delete the verification token from cache
     cache.delete(verification_token)
 
-    return redirect('http://localhost:5173/login')
+    return redirect('http://localhost:5173/verify/login')
 
 
 @csrf_exempt  # Only for demonstration, use appropriate CSRF protection in production
@@ -113,6 +113,7 @@ def login_view(request):
         print("cus", settings.LOGGED_IN_USER)
         login(request, user)
         return JsonResponse({
+            'message': 'Login successful',
             'username': user.username,
             'email': user.email
         }, status=200)

@@ -63,7 +63,7 @@ def objects_list(bucket_name, endpoint_url, aws_access_key_id, aws_secret_access
         )
     except Exception as exc:
         logging.error(exc)
-        return False
+        return None
     else:
         try:
             bucket = s3_resource.Bucket(bucket_name)
@@ -74,6 +74,35 @@ def objects_list(bucket_name, endpoint_url, aws_access_key_id, aws_secret_access
 
             return object_key
 
+        except ClientError as e:
+            logging.error(e)
+            return None
+
+
+def download_file(bucket_name, endpoint_url, aws_access_key_id, aws_secret_access_key, download_path, object_name):
+    try:
+        s3_resource = boto3.resource(
+            's3',
+            endpoint_url=endpoint_url,
+            aws_access_key_id=aws_access_key_id,
+            aws_secret_access_key=aws_secret_access_key
+        )
+    except Exception as exc:
+        logging.error(exc)
+        return False
+    else:
+        try:
+            # bucket
+            bucket = s3_resource.Bucket(bucket_name)
+
+            object_name = object_name
+            download_path = download_path
+
+            bucket.download_file(
+                object_name,
+                download_path
+            )
+            return True
         except ClientError as e:
             logging.error(e)
             return False
