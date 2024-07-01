@@ -327,7 +327,9 @@ function MyComponent() {
   const [fileName, setFileName] = useState("");
   const [size, setSize] = useState(0);
   const [type, setType] = useState("");
+
   const fileInputRef = useRef(null);
+  const [objects, setObjects] = useState([]);
 
   const handleFileChange = (e) => {
     const selectedFile = e.target.files[0];
@@ -344,6 +346,19 @@ function MyComponent() {
       );
     }
   };
+
+  useEffect(() => {
+    fetch("http://localhost:8000/objects/objects_list")
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.list_of_objects) {
+          setObjects(data.list_of_objects);
+        } else {
+          setError(data.message);
+        }
+      })
+      .catch((error) => setError("Failed to fetch objects"));
+  }, []);
 
   const handleSubmit = async (file, fileName, size, type) => {
     const data = new FormData();
@@ -527,7 +542,7 @@ function MyComponent() {
           </p>
           <AddPeoplePopup />
           <section className="files-section">
-            {fileItems.map((item, index) => (
+            {/* {fileItems.map((item, index) => (
               <>
                 <FileItem
                   key={index}
@@ -537,6 +552,17 @@ function MyComponent() {
                   altText={item.altText}
                 />
               </>
+            ))} */}
+            {objects.map((item, index) =>(
+              item.owner.email === email ? (
+                  <FileItem
+                    key={index}
+                    imgSrc={logo}
+                    title={item.file_name}
+                    details={item.size}
+                    altText={item.file_name}
+                  />
+              ) : null
             ))}
           </section>
         </main>
