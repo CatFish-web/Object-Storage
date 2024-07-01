@@ -106,3 +106,31 @@ def download_file(bucket_name, endpoint_url, aws_access_key_id, aws_secret_acces
         except ClientError as e:
             logging.error(e)
             return False
+
+
+def delete_file(bucket_name, endpoint_url, aws_access_key_id, aws_secret_access_key, object_name):
+    try:
+        s3_resource = boto3.resource(
+            's3',
+            endpoint_url=endpoint_url,
+            aws_access_key_id=aws_access_key_id,
+            aws_secret_access_key=aws_secret_access_key
+        )
+    except Exception as exc:
+        logging.error(exc)
+        return False
+    else:
+        try:
+            object_name = 'file1.txt'
+
+            bucket = s3_resource.Bucket(bucket_name)
+            object = bucket.Object(object_name)
+
+            response = object.delete(
+                # VersionId='string',
+            )
+            print(response)
+            return True
+        except ClientError as e:
+            logging.error(e)
+            return False
