@@ -110,6 +110,7 @@
   font-weight: 600;
   min-height: 40px;
   min-width: 130px;
+  cursor: pointer;
 }
 .icon {
   width: 30px;
@@ -186,12 +187,13 @@
 }
 .file-item-content {
   display: flex;
+  justify-content: center;
+  align-items: center;
   gap: 15px;
 }
 .file-icon {
-  width: 60px;
-  aspect-ratio: 1;
-  object-fit: auto;
+    height: 50px;
+    width: 50px;
 }
 .file-details {
   display: flex;
@@ -215,6 +217,7 @@
   aspect-ratio: 1;
   object-fit: auto;
   margin: auto 0;
+  cursor: pointer;
 }
 
 .div {
@@ -247,13 +250,9 @@
   gap: 12px;
   white-space: nowrap;
   align-items: center;
+  cursor: pointer;
 }
-.img {
-  aspect-ratio: 1;
-  object-fit: auto;
-  object-position: center;
-  width: 30px;
-}
+
 .div-4 {
   font-feature-settings: "clig" off, "liga" off;
   font-family: Poppins, sans-serif;
@@ -268,14 +267,9 @@
   gap: 12px;
   white-space: nowrap;
   align-items: center;
+  cursor: pointer;
 }
-.img-2 {
-  aspect-ratio: 1.3;
-  object-fit: auto;
-  object-position: center;
-  width: 30px;
-  align-self: start;
-}
+
 .div-6 {
   font-feature-settings: "clig" off, "liga" off;
   font-family: Poppins, sans-serif;
@@ -323,4 +317,15 @@
   height: 70%;
   width: 100%;
   border: 1px solid rgb(54, 65, 5);
+}
+.close-icon{
+  display: flex;
+  width: 10px;
+  justify-content: start;
+  align-items: start;
+  position: absolute;
+  right: 10px;
+  top: 10px;
+  padding: 10px;
+  cursor: pointer;
 }

@@ -1,10 +1,47 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useLocation } from "react-router-dom";
+import { format } from 'date-fns';
 import axios from "axios";
 import logo from "../assets/Vector Logo.svg";
 import upload from "../assets/Upload.svg";
 import "./HomePage.css";
 import Popover from "../components/FilePopover.jsx";
+import AddPeople2 from "../components/AddPeople.jsx";
+import music from "../assets/music.png";
+import video from "../assets/video.png";
+import pdf from "../assets/pdf.png";
+import image from "../assets/image.png";
+import others from "../assets/other.png";
+import textIcon from "../assets/text.png";
+import close from "../assets/close.png";
+
+const getImageSrcByFileType = (fileType) => {
+  switch (fileType) {
+    case "mp3":
+      return music;
+    case "pdf":
+      return pdf;
+    case "mp4":
+    case "mkv":
+      return video;
+    case "jpeg":
+    case "png":
+    case "jpg":
+      return image;
+    case "txt":
+      return textIcon;
+    default:
+      return others;
+  }
+};
+const formatBytes = (bytes) => {
+  if (bytes === 0) return '0 B';
+  const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
+  const i = Math.floor(Math.log(bytes) / Math.log(1024));
+  const size = bytes / Math.pow(1024, i);
+  const formattedSize = size >= 1000 ? size.toFixed(0) : size.toFixed(size >= 100 ? 0 : 1);
+  return `${formattedSize} ${sizes[i]}`;
+};
 
 const IconTextButton = ({ iconSrc, text, altText, type, onClick }) => (
   <div
@@ -78,12 +115,17 @@ const AddPeoplePopup = ({}) => {
   );
 };
 
-const FileItem = ({ imgSrc, title, details, altText }) => {
+const FileItem = ({ title, size, altText, type, dateAndTime }) => {
   const [isToggled, setIsToggled] = useState(false);
 
   const handleToggle = () => {
     setIsToggled((prevState) => !prevState);
   };
+
+  const formattedDate = format(new Date(dateAndTime), 'hh:mma, dd MMM');
+  const formattedSize = formatBytes(size);
+
+  const imgSrc = getImageSrcByFileType(type);
 
   return (
     <>
@@ -97,7 +139,9 @@ const FileItem = ({ imgSrc, title, details, altText }) => {
           />
           <div className="file-details">
             <div className="file-title">{title}</div>
-            <div className="file-info">{details}</div>
+            <div className="file-info">
+              {formattedSize} - {formattedDate}
+            </div>
           </div>
         </div>
         <img
@@ -107,218 +151,52 @@ const FileItem = ({ imgSrc, title, details, altText }) => {
           alt=""
           onClick={handleToggle}
         />
-        {isToggled && <FilePopover />}
+        {isToggled && <FilePopover title={title} toggel={handleToggle} />}
       </div>
     </>
   );
 };
 
-const FilePopover = ({}) => (
-  <>
-    <div className="div">
-      <div className="div-2">App School.fig</div>
-      <div className="div-5">
-        <img
-          loading="lazy"
-          src="https://cdn.builder.io/api/v1/image/assets/TEMP/926dadbb5b1c4a288e0397f6c28706a6960c00a13627f11245f7c44d6b11b7f0?"
-          className="img"
-        />
-        <div className="div-6">Share</div>
-      </div>
-      <div className="div-5">
-        <img
-          loading="lazy"
-          src="https://cdn.builder.io/api/v1/image/assets/TEMP/54a084866dca98a8c1c2265b001eadbb6bcea86e97014eeefe0bf1a7cfdba48a?"
-          className="img-2"
-        />
-        <div className="div-6">Download</div>
-      </div>
-      <div className="div-3">
-        <img
-          loading="lazy"
-          src="https://cdn.builder.io/api/v1/image/assets/TEMP/6d311441253fbf2162f3422e3b389a624496183f15680abdea9bc28d3ce29cf6?"
-          className="img"
-        />
-        <div className="div-6">Delete</div>
-      </div>
-    </div>
-    {/* <style jsx>{`
+const FilePopover = ({ title, access, toggel }) => {
+  return (
+    <>
+        <div className="div">
+          <div onClick={toggel}>
+            <img src={close} className="close-icon" />
+          </div>
+          <div className="div-2">{title}</div>
+          <div className="div-5">
+            <img
+              loading="lazy"
+              src="https://cdn.builder.io/api/v1/image/assets/TEMP/926dadbb5b1c4a288e0397f6c28706a6960c00a13627f11245f7c44d6b11b7f0?"
+            />
+            <div className="div-6">Share</div>
+          </div>
+          <div className="div-5">
+            <img
+              loading="lazy"
+              src="https://cdn.builder.io/api/v1/image/assets/TEMP/54a084866dca98a8c1c2265b001eadbb6bcea86e97014eeefe0bf1a7cfdba48a?"
+            />
+            <div className="div-6">Download</div>
+          </div>
+          <div className="div-3">
+            <img
+              loading="lazy"
+              src="https://cdn.builder.io/api/v1/image/assets/TEMP/6d311441253fbf2162f3422e3b389a624496183f15680abdea9bc28d3ce29cf6?"
+            />
+            <div className="div-6">Delete</div>
+          </div>
+        </div>
+
+      {/* <style jsx>{`
       
     `}</style> */}
-  </>
-);
+    </>
+  );
+};
 
 function MyComponent() {
-  const fileItems = [
-    {
-      imgSrc:
-        "https://cdn.builder.io/api/v1/image/assets/TEMP/d6c9028bb56acccb02fe52d2294b5f5a1e7f9fd8e84f56a6561bfe371bf15754?apiKey=61b20d1a1e1848d2bcaf0e442b285d46&",
-      title: "App School.fig",
-      details: "10 GB - 10:09pm, 10 Oct",
-      altText: "App School",
-    },
-    {
-      imgSrc:
-        "https://cdn.builder.io/api/v1/image/assets/TEMP/f7677d9b03f835fcb57c49ed41bf7e95f9ca907c6bda4ebf3a3afd88cb3908ae?apiKey=61b20d1a1e1848d2bcaf0e442b285d46&",
-      title: "BC company.sketch",
-      details: "10 GB - 10:09pm, 10 Oct",
-      altText: "BC company",
-    },
-    {
-      imgSrc:
-        "https://cdn.builder.io/api/v1/image/assets/TEMP/70257065c850f2b4140b4b58f017d85802b51a055842a494959bdb1e636c7908?apiKey=61b20d1a1e1848d2bcaf0e442b285d46&",
-      title: "B.UI.xd",
-      details: "10 GB - 10:09pm, 10 Oct",
-      altText: "B.UI",
-    },
-    {
-      imgSrc:
-        "https://cdn.builder.io/api/v1/image/assets/TEMP/676ec6daaa9b5c76b4889d25a83aae63d3138e416089087a041704b038d994b3?apiKey=61b20d1a1e1848d2bcaf0e442b285d46&",
-      title: "B.UI.xd",
-      details: "10 GB - 10:09pm, 10 Oct",
-      altText: "B.UI",
-    },
-    {
-      imgSrc:
-        "https://cdn.builder.io/api/v1/image/assets/TEMP/d6c9028bb56acccb02fe52d2294b5f5a1e7f9fd8e84f56a6561bfe371bf15754?apiKey=61b20d1a1e1848d2bcaf0e442b285d46&",
-      title: "CompanyANV.fig",
-      details: "10 GB - 10:09pm, 10 Oct",
-      altText: "CompanyANV",
-    },
-    {
-      imgSrc:
-        "https://cdn.builder.io/api/v1/image/assets/TEMP/f7677d9b03f835fcb57c49ed41bf7e95f9ca907c6bda4ebf3a3afd88cb3908ae?apiKey=61b20d1a1e1848d2bcaf0e442b285d46&",
-      title: "company ABC.sketch",
-      details: "10 GB - 10:09pm, 10 Oct",
-      altText: "company ABC",
-    },
-    {
-      imgSrc:
-        "https://cdn.builder.io/api/v1/image/assets/TEMP/d6c9028bb56acccb02fe52d2294b5f5a1e7f9fd8e84f56a6561bfe371bf15754?apiKey=61b20d1a1e1848d2bcaf0e442b285d46&",
-      title: "My Jobs.fig",
-      details: "10 GB - 10:09pm, 10 Oct",
-      altText: "My Jobs",
-    },
-    {
-      imgSrc:
-        "https://cdn.builder.io/api/v1/image/assets/TEMP/d6c9028bb56acccb02fe52d2294b5f5a1e7f9fd8e84f56a6561bfe371bf15754?apiKey=61b20d1a1e1848d2bcaf0e442b285d46&",
-      title: "My Jobs.fig",
-      details: "10 GB - 10:09pm, 10 Oct",
-      altText: "My Jobs",
-    },
-    {
-      imgSrc:
-        "https://cdn.builder.io/api/v1/image/assets/TEMP/70257065c850f2b4140b4b58f017d85802b51a055842a494959bdb1e636c7908?apiKey=61b20d1a1e1848d2bcaf0e442b285d46&",
-      title: "Photoshop.xd",
-      details: "10 GB - 10:09pm, 10 Oct",
-      altText: "Photoshop",
-    },
-    {
-      imgSrc:
-        "https://cdn.builder.io/api/v1/image/assets/TEMP/d6c9028bb56acccb02fe52d2294b5f5a1e7f9fd8e84f56a6561bfe371bf15754?apiKey=61b20d1a1e1848d2bcaf0e442b285d46&",
-      title: "P.N design123.fig",
-      details: "10 GB - 10:09pm, 10 Oct",
-      altText: "P.N design123",
-    },
-    {
-      imgSrc:
-        "https://cdn.builder.io/api/v1/image/assets/TEMP/f7677d9b03f835fcb57c49ed41bf7e95f9ca907c6bda4ebf3a3afd88cb3908ae?apiKey=61b20d1a1e1848d2bcaf0e442b285d46&",
-      title: "system.sketch",
-      details: "10 GB - 10:09pm, 10 Oct",
-      altText: "system",
-    },
-    {
-      imgSrc:
-        "https://cdn.builder.io/api/v1/image/assets/TEMP/f7677d9b03f835fcb57c49ed41bf7e95f9ca907c6bda4ebf3a3afd88cb3908ae?apiKey=61b20d1a1e1848d2bcaf0e442b285d46&",
-      title: "system.sketch",
-      details: "10 GB - 10:09pm, 10 Oct",
-      altText: "system",
-    },
-    {
-      imgSrc:
-        "https://cdn.builder.io/api/v1/image/assets/TEMP/df158a37d50203cd3cc0abee5870b2b73a151793a1a4b22d691b7ad3480d5501?apiKey=61b20d1a1e1848d2bcaf0e442b285d46&",
-      title: "school.pdf",
-      details: "10 GB - 10:09pm, 10 Oct",
-      altText: "school",
-    },
-    {
-      imgSrc:
-        "https://cdn.builder.io/api/v1/image/assets/TEMP/76f6dcfc67f2ff163fe79a7d50505515a7efbe99bcf6f68adb333e7489786f38?apiKey=61b20d1a1e1848d2bcaf0e442b285d46&",
-      title: "Una App.fig",
-      details: "10 GB - 10:09pm, 10 Oct",
-      altText: "Una App",
-    },
-    {
-      imgSrc:
-        "https://cdn.builder.io/api/v1/image/assets/TEMP/76f6dcfc67f2ff163fe79a7d50505515a7efbe99bcf6f68adb333e7489786f38?apiKey=61b20d1a1e1848d2bcaf0e442b285d46&",
-      title: "Water design999.fig",
-      details: "10 GB - 10:09pm, 10 Oct",
-      altText: "Water design999",
-    },
-    {
-      imgSrc:
-        "https://cdn.builder.io/api/v1/image/assets/TEMP/76f6dcfc67f2ff163fe79a7d50505515a7efbe99bcf6f68adb333e7489786f38?apiKey=61b20d1a1e1848d2bcaf0e442b285d46&",
-      title: "Water design.fig",
-      details: "10 GB - 10:09pm, 10 Oct",
-      altText: "Water design",
-    },
-    {
-      imgSrc:
-        "https://cdn.builder.io/api/v1/image/assets/TEMP/76f6dcfc67f2ff163fe79a7d50505515a7efbe99bcf6f68adb333e7489786f38?apiKey=61b20d1a1e1848d2bcaf0e442b285d46&",
-      title: "Water design.fig",
-      details: "10 GB - 10:09pm, 10 Oct",
-      altText: "Water design",
-    },
-    {
-      imgSrc:
-        "https://cdn.builder.io/api/v1/image/assets/TEMP/a1b7f7ffbe996af58a07241d13d70f0eb6f8b61fa48701db906bc4349a439c56?apiKey=61b20d1a1e1848d2bcaf0e442b285d46&",
-      title: "Zuha App.xd",
-      details: "10 GB - 10:09pm, 10 Oct",
-      altText: "Zuha App",
-    },
-    {
-      imgSrc:
-        "https://cdn.builder.io/api/v1/image/assets/TEMP/2431f48eb20067337333871d6b36cfdd997ab34c96add7db4a28dd9d3fad13e1?apiKey=61b20d1a1e1848d2bcaf0e442b285d46&",
-      title: "zApp.sketch",
-      details: "10 GB - 10:09pm, 10 Oct",
-      altText: "zApp",
-    },
-    {
-      imgSrc:
-        "https://cdn.builder.io/api/v1/image/assets/TEMP/2431f48eb20067337333871d6b36cfdd997ab34c96add7db4a28dd9d3fad13e1?apiKey=61b20d1a1e1848d2bcaf0e442b285d46&",
-      title: "zApp.sketch",
-      details: "10 GB - 10:09pm, 10 Oct",
-      altText: "zApp",
-    },
-    {
-      imgSrc:
-        "https://cdn.builder.io/api/v1/image/assets/TEMP/76f6dcfc67f2ff163fe79a7d50505515a7efbe99bcf6f68adb333e7489786f38?apiKey=61b20d1a1e1848d2bcaf0e442b285d46&",
-      title: "zzz App.fig",
-      details: "10 GB - 10:09pm, 10 Oct",
-      altText: "zzz App",
-    },
-    {
-      imgSrc:
-        "https://cdn.builder.io/api/v1/image/assets/TEMP/2431f48eb20067337333871d6b36cfdd997ab34c96add7db4a28dd9d3fad13e1?apiKey=61b20d1a1e1848d2bcaf0e442b285d46&",
-      title: "zdesign.sketch",
-      details: "10 GB - 10:09pm, 10 Oct",
-      altText: "zdesign",
-    },
-    {
-      imgSrc:
-        "https://cdn.builder.io/api/v1/image/assets/TEMP/76f6dcfc67f2ff163fe79a7d50505515a7efbe99bcf6f68adb333e7489786f38?apiKey=61b20d1a1e1848d2bcaf0e442b285d46&",
-      title: "Yu App.fig",
-      details: "10 GB - 10:09pm, 10 Oct",
-      altText: "Yu App",
-    },
-    {
-      imgSrc:
-        "https://cdn.builder.io/api/v1/image/assets/TEMP/76f6dcfc67f2ff163fe79a7d50505515a7efbe99bcf6f68adb333e7489786f38?apiKey=61b20d1a1e1848d2bcaf0e442b285d46&",
-      title: "Yu App.fig",
-      details: "10 GB - 10:09pm, 10 Oct",
-      altText: "Yu App",
-    },
-  ];
+
 
   const location = useLocation();
   const { username, email } = location.state || { username: "", email: "" };
@@ -391,107 +269,6 @@ function MyComponent() {
     }
   };
 
-  //   const [file, setFile] = useState(null);
-  //   const [fileName, setFileName] = useState("");
-  //   const [size, setSize] = useState(0);
-  //   const [type, setType] = useState("");
-
-  //   // const fileInputRef = useRef(null);
-
-  //   const handleFileChange = async (e) => {
-  //     const selectedFile = e.target.files[0];
-
-  //     if (selectedFile) {
-  //       setFile(selectedFile);
-  //       setFileName(selectedFile.name);
-  //       setSize(selectedFile.size);
-  //       setType(selectedFile.name.split(".").pop()); // Get file extension as type
-
-  //       // Automatically submit the form after file selection
-  //       // await handleSubmit();
-  //     }
-  //   };
-
-  //   const handleSubmit = async (e) => {
-  //     e.preventDefault();
-  //     if (!file) {
-  //       console.error("No file selected");
-  //       return;
-  //     }
-
-  //     const data = new FormData();
-  //     data.append("file", file);
-  //     data.append("file_name", fileName);
-  //     data.append("size", size);
-  //     data.append("type", type)
-
-  //     console.log({ file, file_name: fileName, size, type });
-
-  //   // useEffect(() => {
-  //   //   if(file){
-  //   //     const data = {
-  //   //       file: file,
-  //   //       file_name: fileName,
-  //   //       size: size,
-  //   //       type: type,
-  //   //   };
-  //   try {
-  //     const response = await axios.post('http://localhost:8000/objects/upload_file', data, {
-  //       headers: {
-  //         'Content-Type': 'multipart/form-data'
-  //       }
-  //     });
-  //     console.log(response.data);
-  //   } catch (error) {
-  //     console.error("Error uploading file metadata:", error);
-  //   }
-  // };
-
-  //   //     const uploadFile = async () => {
-  //   //       try {
-  //   //         const response = await axios.post('http://localhost:8000/objects/upload_file', data);
-  //   //         console.log(response.data);
-  //   //       } catch (error) {
-  //   //         console.error("Error uploading file metadata:", error);
-  //   //       }
-  //   //     };
-
-  //   //     uploadFile();
-  //   //   }
-
-  //   // }, [file, fileName, size, type]);
-
-  //   // const handleButtonClick = () => {
-  //   //   fileInputRef.current.click();
-  //   // };
-
-  //   // const handleSubmit = async () => {
-  //   //   const data = {
-  //   //     file: file,
-  //   //     file_name: fileName,
-  //   //     size: size,
-  //   //     type: type,
-  //   //   };
-  //   //   console.log(data);
-
-  //   //   try {
-  //   //     const response = await axios.post('http://localhost:8000/objects/upload_file', data);
-
-  //   //     // const response = await axios.post(
-  //   //     //   "http://localhost:8000/objects/upload_file",
-  //   //     //   data,
-  //   //     //   {
-  //   //     //     headers: {
-  //   //     //       "Content-Type": "application/json",
-  //   //     //     },
-  //   //     //   }
-  //   //     // );
-  //   //     console.log(response.data);
-  //   //   } catch (error) {
-  //   //     console.error("Error uploading file metadata:", error);
-  //   //   }
-  //   // };
-
   return (
     <>
       <section className="main-section">
@@ -540,29 +317,18 @@ function MyComponent() {
           <p className="total-storage">
             <span className="total-label">Total:</span> 12GB
           </p>
-          <AddPeoplePopup />
+          {/* <AddPeoplePopup /> */}
+          <AddPeople2/>
           <section className="files-section">
-            {/* {fileItems.map((item, index) => (
-              <>
-                <FileItem
-                  key={index}
-                  imgSrc={item.imgSrc}
-                  title={item.title}
-                  details={item.details}
-                  altText={item.altText}
-                />
-              </>
-            ))} */}
-            {objects.map((item, index) =>(
-              item.owner.email === email ? (
-                  <FileItem
-                    key={index}
-                    imgSrc={logo}
-                    title={item.file_name}
-                    details={item.size}
-                    altText={item.file_name}
-                  />
-              ) : null
+            {objects.map((item, index) => (
+              <FileItem
+                key={index}
+                title={item.file_name}
+                size={item.size}
+                dateAndTime={item.date_and_time}
+                type={item.type}
+                altText={item.file_name}
+              />
             ))}
           </section>
         </main>
