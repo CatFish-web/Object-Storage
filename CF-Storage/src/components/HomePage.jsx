@@ -115,7 +115,7 @@ const AddPeoplePopup = ({}) => {
   );
 };
 
-const FileItem = ({ title, size, altText, type, dateAndTime }) => {
+const FileItem = ({ title, size, altText, type, dateAndTime, objectId }) => {
   const [isToggled, setIsToggled] = useState(false);
 
   const handleToggle = () => {
@@ -151,13 +151,42 @@ const FileItem = ({ title, size, altText, type, dateAndTime }) => {
           alt=""
           onClick={handleToggle}
         />
-        {isToggled && <FilePopover title={title} toggel={handleToggle} />}
+        {isToggled && <FilePopover title={title} toggel={handleToggle} objectId={objectId} fileName={title} />}
       </div>
     </>
   );
 };
 
-const FilePopover = ({ title, access, toggel }) => {
+const FilePopover = ({ title, access, toggel, objectId, fileName  }) => {
+
+  const handleDownload = async () => {
+    const requestData = {
+      object_id: objectId,
+      file_name: fileName,
+    };
+
+    try {
+      const response = await axios.post('http://localhost:8000/objects/download_file', requestData);
+      alert(response.data.message); // Show success or failure message
+    } catch (error) {
+      console.error('Error downloading file:', error);
+      alert('Failed to download file');
+    }
+  }
+
+  const handleDelete = async () => {
+    const requestData = {
+      object_id: objectId
+    };
+
+    try {
+      const response = await axios.post('http://localhost:8000/objects/delete_file', requestData);
+      alert(response.data.message); // Show success or failure message
+    } catch (error) {
+      console.error('Error deleting file:', error);
+      alert('Failed to delete file');
+    }
+  }
   return (
     <>
         <div className="div">
@@ -172,14 +201,14 @@ const FilePopover = ({ title, access, toggel }) => {
             />
             <div className="div-6">Share</div>
           </div>
-          <div className="div-5">
+          <div className="div-5" onClick={handleDownload} download>
             <img
               loading="lazy"
               src="https://cdn.builder.io/api/v1/image/assets/TEMP/54a084866dca98a8c1c2265b001eadbb6bcea86e97014eeefe0bf1a7cfdba48a?"
             />
             <div className="div-6">Download</div>
           </div>
-          <div className="div-3">
+          <div className="div-3" onClick={handleDelete}>
             <img
               loading="lazy"
               src="https://cdn.builder.io/api/v1/image/assets/TEMP/6d311441253fbf2162f3422e3b389a624496183f15680abdea9bc28d3ce29cf6?"
@@ -328,6 +357,7 @@ function MyComponent() {
                 dateAndTime={item.date_and_time}
                 type={item.type}
                 altText={item.file_name}
+                objectId={item.id}
               />
             ))}
           </section>

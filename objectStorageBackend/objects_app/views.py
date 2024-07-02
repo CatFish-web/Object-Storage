@@ -65,8 +65,8 @@ def download_file_view(request):
         file = json.loads(request.body)
         file_name = file["file_name"]
         object_id = file["object_id"]
-        file_format = file["type"]
-        download_path = f"{file_name}.{file_format}"
+        # file_format = file["type"]
+        download_path = f"D:/All/Git Projects/Object-Storage/CF-Storage/Downloads/{file_name}"
 
         success = download_file(bucket_name, endpoint_url, aws_access_key_id, aws_secret_access_key, download_path, object_id)
 
@@ -120,11 +120,12 @@ def delete_file_view(request):
     aws_secret_access_key = settings.AWS_SECRET_ACCESS_KEY
 
     if request.method == 'POST':
-        file = request.body
-        object_name = file["object_name"]
-        success = delete_file(bucket_name, endpoint_url, aws_access_key_id, aws_secret_access_key, object_name)
+        file = json.loads(request.body)
+        object_id = file["object_id"]
+        success = delete_file(bucket_name, endpoint_url, aws_access_key_id, aws_secret_access_key, object_id)
 
         if success:
+            Object.objects.get(id=object_id).delete()
             return JsonResponse({'message': 'File deleted successfully'}, status=200)
         else:
             return JsonResponse({'message': 'Failed to delete file'}, status=500)
