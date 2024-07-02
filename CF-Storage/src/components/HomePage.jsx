@@ -167,6 +167,7 @@ const FileItem = ({ title, size, altText, type, dateAndTime, objectId }) => {
 
 const FilePopover = ({ title, access, toggel, objectId, fileName }) => {
   const [showModal, setShowModal] = useState(false);
+  const [users, setUsers] = useState([]);
 
   const handleOpenModal = () => {
     setShowModal(true);
@@ -210,15 +211,39 @@ const FilePopover = ({ title, access, toggel, objectId, fileName }) => {
       alert("Failed to delete file");
     }
   };
+
+  const handleGetUsers = async (e) => {
+    e.preventDefault();
+
+    const data = {object_id: objectId}
+    console.log(data);
+    const response = await fetch('http://localhost:8000/objects/share_file', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(data),
+    });
+
+    if (response.ok) {
+      const responseData = await response.json();
+      setUsers(responseData.combined_users);
+      console.log(responseData)
+      handleOpenModal();
+    } else {
+      const errorData = await response.json();
+      setError(errorData.error);
+    }
+  };
   return (
     <>
-      <AddPeople show={showModal} onClose={handleCloseModal} objectId={objectId} />
+      <AddPeople show={showModal} onClose={handleCloseModal} objectId={objectId} users={users} />
       <div className="div">
         <div onClick={toggel}>
           <img src={close} className="close-icon" />
         </div>
         <div className="div-2">{title}</div>
-        <div className="div-5" onClick={handleOpenModal}>
+        <div className="div-5" onClick={handleGetUsers}>
           <img
             loading="lazy"
             src="https://cdn.builder.io/api/v1/image/assets/TEMP/926dadbb5b1c4a288e0397f6c28706a6960c00a13627f11245f7c44d6b11b7f0?"

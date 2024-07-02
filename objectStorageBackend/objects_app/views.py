@@ -4,7 +4,7 @@ from django.shortcuts import get_object_or_404
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework import generics
 from .models import Object, CustomUser
-from .serializers import ObjectSerializer
+from .serializers import ObjectSerializer, CustomUserSerializer
 from django.http import JsonResponse
 from django.conf import settings
 from objects_app.utils import S3ResourceSingleton, upload_file, objects_list, download_file, delete_file
@@ -141,11 +141,8 @@ def share_file_view(request):
         # Combine both query sets into a single list
         combined_users = list(users_with_access) + list(users_without_access)
 
-        # Remove Logged in user
-        combined_users = combined_users.remove(settings.LOGGED_IN_USER)
-
         # Serialize the lists of users
-        ser_combined_users = ObjectSerializer(combined_users, many=True).data
+        ser_combined_users = CustomUserSerializer(combined_users, many=True).data
 
         return JsonResponse({
             'message': 'List of users showed successfully',
