@@ -6,7 +6,7 @@ import logo from "../assets/Vector Logo.svg";
 import upload from "../assets/Upload.svg";
 import "./HomePage.css";
 import Popover from "../components/FilePopover.jsx";
-import AddPeople2 from "../components/AddPeople2.jsx";
+import AddPeople2 from "../components/AddPeople.jsx";
 import music from "../assets/music.png";
 import video from "../assets/video.png";
 import pdf from "../assets/pdf.png";
