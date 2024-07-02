@@ -30,7 +30,7 @@ function ProfileCard({ name, email, imgSrc, altText, iconAltText, hasAccess }) {
   );
 }
 
-function MyComponent() {
+function MyComponent({show, onClose}) {
   const profiles = [
     {
       name: "Alice Emma",
@@ -40,6 +40,24 @@ function MyComponent() {
       altText: "Profile image of Alice Emma",
       iconAltText: "Icon",
       access: true,
+    },
+    {
+      name: "Anne Jennifer",
+      email: "jennifer@gmail.com",
+      imgSrc: "https://cdn.builder.io/api/v1/image/assets/TEMP/71eef51afc0df1a62e6acbcbafeef4dc531a00b6981379f2a24fb1aa8b6e3beb?apiKey=61b20d1a1e1848d2bcaf0e442b285d46&",
+      iconSrc: "https://cdn.builder.io/api/v1/image/assets/TEMP/2828770ad3ff4f590f6f3c0d332f51925e4ca932d22913ce017fdd9e82de7a1c?apiKey=61b20d1a1e1848d2bcaf0e442b285d46&",
+      altText: "Profile image of Anne Jennifer",
+      iconAltText: "Icon",
+      access: false,
+    },
+    {
+      name: "Anne Jennifer",
+      email: "jennifer@gmail.com",
+      imgSrc: "https://cdn.builder.io/api/v1/image/assets/TEMP/71eef51afc0df1a62e6acbcbafeef4dc531a00b6981379f2a24fb1aa8b6e3beb?apiKey=61b20d1a1e1848d2bcaf0e442b285d46&",
+      iconSrc: "https://cdn.builder.io/api/v1/image/assets/TEMP/2828770ad3ff4f590f6f3c0d332f51925e4ca932d22913ce017fdd9e82de7a1c?apiKey=61b20d1a1e1848d2bcaf0e442b285d46&",
+      altText: "Profile image of Anne Jennifer",
+      iconAltText: "Icon",
+      access: false,
     },
     {
       name: "Anne Jennifer",
@@ -97,11 +115,22 @@ function MyComponent() {
     },
   ];
 
+  // if (!show) {
+  //   return null;
+  // }
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    // Add the logic to handle adding people here
+    console.log("bye bye");
+    onClose();
+  };
   return (
-    <>
-      <aside className="share-container">
+    <div className='modal-overlay'>
+      <div className='modal-content'>
+      <div className="share-container">
         <header className="header">
-          <img src="https://cdn.builder.io/api/v1/image/assets/TEMP/91c0f5f67218c4876995dce4a27205fc7b825d73a04039c9959a50440a8f9209?apiKey=61b20d1a1e1848d2bcaf0e442b285d46&" className="share-header-icon" alt="Add People" />
+          <img src="https://cdn.builder.io/api/v1/image/assets/TEMP/91c0f5f67218c4876995dce4a27205fc7b825d73a04039c9959a50440a8f9209?apiKey=61b20d1a1e1848d2bcaf0e442b285d46&" className="share-header-icon" alt="Add People" onClick={onClose} />
           <h1 className="share-header-title">Add People</h1>
         </header>
         <section className="search-box">
@@ -123,10 +152,11 @@ function MyComponent() {
         ))}
         </section>
         <footer className="footer">
-          <button className="footer-button">Continue</button>
+          <button className="footer-button" onClick={handleSubmit}>Continue</button>
         </footer>
-      </aside>
-    </>
+      </div>
+      </div>
+    </div>
   );
 }
 
