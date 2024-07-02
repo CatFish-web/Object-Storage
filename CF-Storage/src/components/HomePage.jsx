@@ -1,12 +1,12 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useLocation } from "react-router-dom";
-import { format } from 'date-fns';
+import { format } from "date-fns";
 import axios from "axios";
 import logo from "../assets/Vector Logo.svg";
 import upload from "../assets/Upload.svg";
 import "./HomePage.css";
 import Popover from "../components/FilePopover.jsx";
-import AddPeople2 from "../components/AddPeople.jsx";
+import AddPeople from "../components/AddPeople.jsx";
 import music from "../assets/music.png";
 import video from "../assets/video.png";
 import pdf from "../assets/pdf.png";
@@ -35,11 +35,12 @@ const getImageSrcByFileType = (fileType) => {
   }
 };
 const formatBytes = (bytes) => {
-  if (bytes === 0) return '0 B';
-  const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
+  if (bytes === 0) return "0 B";
+  const sizes = ["B", "KB", "MB", "GB", "TB"];
   const i = Math.floor(Math.log(bytes) / Math.log(1024));
   const size = bytes / Math.pow(1024, i);
-  const formattedSize = size >= 1000 ? size.toFixed(0) : size.toFixed(size >= 100 ? 0 : 1);
+  const formattedSize =
+    size >= 1000 ? size.toFixed(0) : size.toFixed(size >= 100 ? 0 : 1);
   return `${formattedSize} ${sizes[i]}`;
 };
 
@@ -122,7 +123,7 @@ const FileItem = ({ title, size, altText, type, dateAndTime, objectId }) => {
     setIsToggled((prevState) => !prevState);
   };
 
-  const formattedDate = format(new Date(dateAndTime), 'hh:mma, dd MMM');
+  const formattedDate = format(new Date(dateAndTime), "hh:mma, dd MMM");
   const formattedSize = formatBytes(size);
 
   const imgSrc = getImageSrcByFileType(type);
@@ -151,13 +152,29 @@ const FileItem = ({ title, size, altText, type, dateAndTime, objectId }) => {
           alt=""
           onClick={handleToggle}
         />
-        {isToggled && <FilePopover title={title} toggel={handleToggle} objectId={objectId} fileName={title} />}
+        {isToggled && (
+          <FilePopover
+            title={title}
+            toggel={handleToggle}
+            objectId={objectId}
+            fileName={title}
+          />
+        )}
       </div>
     </>
   );
 };
 
-const FilePopover = ({ title, access, toggel, objectId, fileName  }) => {
+const FilePopover = ({ title, access, toggel, objectId, fileName }) => {
+  const [showModal, setShowModal] = useState(false);
+
+  const handleOpenModal = () => {
+    setShowModal(true);
+  };
+
+  const handleCloseModal = () => {
+    setShowModal(false);
+  };
 
   const handleDownload = async () => {
     const requestData = {
@@ -166,56 +183,63 @@ const FilePopover = ({ title, access, toggel, objectId, fileName  }) => {
     };
 
     try {
-      const response = await axios.post('http://localhost:8000/objects/download_file', requestData);
+      const response = await axios.post(
+        "http://localhost:8000/objects/download_file",
+        requestData
+      );
       alert(response.data.message); // Show success or failure message
     } catch (error) {
-      console.error('Error downloading file:', error);
-      alert('Failed to download file');
+      console.error("Error downloading file:", error);
+      alert("Failed to download file");
     }
-  }
+  };
 
   const handleDelete = async () => {
     const requestData = {
-      object_id: objectId
+      object_id: objectId,
     };
 
     try {
-      const response = await axios.post('http://localhost:8000/objects/delete_file', requestData);
+      const response = await axios.post(
+        "http://localhost:8000/objects/delete_file",
+        requestData
+      );
       alert(response.data.message); // Show success or failure message
     } catch (error) {
-      console.error('Error deleting file:', error);
-      alert('Failed to delete file');
+      console.error("Error deleting file:", error);
+      alert("Failed to delete file");
     }
-  }
+  };
   return (
     <>
-        <div className="div">
-          <div onClick={toggel}>
-            <img src={close} className="close-icon" />
-          </div>
-          <div className="div-2">{title}</div>
-          <div className="div-5">
-            <img
-              loading="lazy"
-              src="https://cdn.builder.io/api/v1/image/assets/TEMP/926dadbb5b1c4a288e0397f6c28706a6960c00a13627f11245f7c44d6b11b7f0?"
-            />
-            <div className="div-6">Share</div>
-          </div>
-          <div className="div-5" onClick={handleDownload} download>
-            <img
-              loading="lazy"
-              src="https://cdn.builder.io/api/v1/image/assets/TEMP/54a084866dca98a8c1c2265b001eadbb6bcea86e97014eeefe0bf1a7cfdba48a?"
-            />
-            <div className="div-6">Download</div>
-          </div>
-          <div className="div-3" onClick={handleDelete}>
-            <img
-              loading="lazy"
-              src="https://cdn.builder.io/api/v1/image/assets/TEMP/6d311441253fbf2162f3422e3b389a624496183f15680abdea9bc28d3ce29cf6?"
-            />
-            <div className="div-6">Delete</div>
-          </div>
+      <AddPeople show={showModal} onClose={handleCloseModal} objectId={objectId} />
+      <div className="div">
+        <div onClick={toggel}>
+          <img src={close} className="close-icon" />
         </div>
+        <div className="div-2">{title}</div>
+        <div className="div-5" onClick={handleOpenModal}>
+          <img
+            loading="lazy"
+            src="https://cdn.builder.io/api/v1/image/assets/TEMP/926dadbb5b1c4a288e0397f6c28706a6960c00a13627f11245f7c44d6b11b7f0?"
+          />
+          <div className="div-6">Share</div>
+        </div>
+        <div className="div-5" onClick={handleDownload} download>
+          <img
+            loading="lazy"
+            src="https://cdn.builder.io/api/v1/image/assets/TEMP/54a084866dca98a8c1c2265b001eadbb6bcea86e97014eeefe0bf1a7cfdba48a?"
+          />
+          <div className="div-6">Download</div>
+        </div>
+        <div className="div-3" onClick={handleDelete}>
+          <img
+            loading="lazy"
+            src="https://cdn.builder.io/api/v1/image/assets/TEMP/6d311441253fbf2162f3422e3b389a624496183f15680abdea9bc28d3ce29cf6?"
+          />
+          <div className="div-6">Delete</div>
+        </div>
+      </div>
 
       {/* <style jsx>{`
       
@@ -225,8 +249,6 @@ const FilePopover = ({ title, access, toggel, objectId, fileName  }) => {
 };
 
 function MyComponent() {
-
-
   const location = useLocation();
   const { username, email } = location.state || { username: "", email: "" };
 
@@ -347,7 +369,6 @@ function MyComponent() {
             <span className="total-label">Total:</span> 12GB
           </p>
           {/* <AddPeoplePopup /> */}
-          <AddPeople2/>
           <section className="files-section">
             {objects.map((item, index) => (
               <FileItem
