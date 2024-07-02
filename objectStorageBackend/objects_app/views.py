@@ -1,5 +1,6 @@
 import json
 
+from django.shortcuts import get_object_or_404
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework import generics
 from .models import Object, CustomUser
@@ -15,7 +16,6 @@ from objects_app.utils import S3ResourceSingleton, upload_file, objects_list, do
 
 @csrf_exempt
 def upload_file_view(request):
-
     # Initialize the Singleton with settings
     S3ResourceSingleton()
 
@@ -78,7 +78,6 @@ def download_file_view(request):
 
 @csrf_exempt
 def objects_list_view(request):
-
     # Initialize the Singleton with settings
     S3ResourceSingleton()
 
@@ -110,7 +109,6 @@ def objects_list_view(request):
 
 @csrf_exempt
 def delete_file_view(request):
-
     # Initialize the Singleton with settings
     S3ResourceSingleton()
 
@@ -130,25 +128,28 @@ def delete_file_view(request):
 
 @csrf_exempt
 def share_file_view(request):
-
     if request.method == 'POST':
         data = json.loads(request.body)
         object_id = data["object_id"]
 
         users_with_access = CustomUser.objects.filter(accessed_objects=object_id)
         all_users = CustomUser.objects.all()
+
         # Remove users with access from all users
         users_without_access = all_users.difference(users_with_access)
-        # ye list!
+
+        # Combine both query sets into a single list
+        combined_users = list(users_with_access) + list(users_without_access)
+
+        # Remove Logged in user
+        combined_users = combined_users.remove(settings.LOGGED_IN_USER)
 
         # Serialize the lists of users
-        ser_users_with_access = ObjectSerializer(users_with_access, many=True).data
-        ser_users_without_access = ObjectSerializer(users_without_access, many=True).data
+        ser_combined_users = ObjectSerializer(combined_users, many=True).data
 
         return JsonResponse({
             'message': 'List of users showed successfully',
-            'users_with_access': ser_users_with_access,
-            'users_without_access': ser_users_without_access
+            'combined_users': ser_combined_users
         }, status=200)
 
     else:
@@ -157,11 +158,28 @@ def share_file_view(request):
 
 @csrf_exempt
 def update_access_view(request):
-
     if request.method == 'POST':
         data = json.loads(request.body)
         object_id = data["object_id"]
         usernames_with_access = data.get("usernames_with_access", [])
         usernames_without_access = data.get("usernames_without_access", [])
 
-        users_with_access = CustomUser.objects.filter(accessed_objects=object_id)
+        # Retrieve the object
+        updated_object = get_object_or_404(Object, pk=object_id)
+
+        # Retrieve users
+        users_with_access = CustomUser.objects.filter(username__in=usernames_with_access)
+        users_without_access = CustomUser.objects.filter(username__in=usernames_without_access)
+
+        # Update access lists
+        for user in users_with_access:
+            user.accessed_objects.add(updated_object)
+            user.save()
+
+        for user in users_without_access:
+            user.accessed_objects.remove(updated_object)
+            user.save()
+
+        return JsonResponse({'message': 'Access updated successfully.'}, status=200)
+
+    return JsonResponse({'error': 'POST method required'}, status=400)
