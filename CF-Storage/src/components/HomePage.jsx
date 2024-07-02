@@ -116,10 +116,23 @@ const AddPeoplePopup = ({}) => {
   );
 };
 
-const FileItem = ({ title, size, altText, type, dateAndTime, objectId }) => {
+const FileItem = ({
+  title,
+  size,
+  altText,
+  type,
+  dateAndTime,
+  objectId,
+  userLoggedIn,
+  objects,
+}) => {
   const [isToggled, setIsToggled] = useState(false);
+  const [isOwned, setIsOwned] = useState(
+    objects.find((obj) => obj.id === objectId).owner.username === userLoggedIn
+  );
 
   const handleToggle = () => {
+    event.preventDefault();
     setIsToggled((prevState) => !prevState);
   };
 
@@ -130,7 +143,7 @@ const FileItem = ({ title, size, altText, type, dateAndTime, objectId }) => {
 
   return (
     <>
-      <div className="file-item">
+      <div className="file-item" onContextMenu={handleToggle}>
         <div className="file-item-content">
           <img
             loading="lazy"
@@ -158,6 +171,8 @@ const FileItem = ({ title, size, altText, type, dateAndTime, objectId }) => {
             toggel={handleToggle}
             objectId={objectId}
             fileName={title}
+            userLoggedIn={userLoggedIn}
+            access={isOwned}
           />
         )}
       </div>
@@ -165,9 +180,17 @@ const FileItem = ({ title, size, altText, type, dateAndTime, objectId }) => {
   );
 };
 
-const FilePopover = ({ title, access, toggel, objectId, fileName }) => {
+const FilePopover = ({
+  title,
+  access,
+  toggel,
+  objectId,
+  fileName,
+  userLoggedIn,
+}) => {
   const [showModal, setShowModal] = useState(false);
   const [users, setUsers] = useState([]);
+  const [downloadLink, setDownloadLink] = useState(null);
 
   const handleOpenModal = () => {
     setShowModal(true);
@@ -179,8 +202,7 @@ const FilePopover = ({ title, access, toggel, objectId, fileName }) => {
 
   const handleDownload = async () => {
     const requestData = {
-      object_id: objectId,
-      file_name: fileName,
+      object_id: objectId
     };
 
     try {
@@ -188,7 +210,15 @@ const FilePopover = ({ title, access, toggel, objectId, fileName }) => {
         "http://localhost:8000/objects/download_file",
         requestData
       );
-      alert(response.data.message); // Show success or failure message
+      setDownloadLink(response.data.download_link);
+      console.log(downloadLink)
+      const link = document.createElement('a');
+      link.href = downloadLink;
+      link.setAttribute('download', title);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
     } catch (error) {
       console.error("Error downloading file:", error);
       alert("Failed to download file");
@@ -215,12 +245,12 @@ const FilePopover = ({ title, access, toggel, objectId, fileName }) => {
   const handleGetUsers = async (e) => {
     e.preventDefault();
 
-    const data = {object_id: objectId}
+    const data = { object_id: objectId };
     console.log(data);
-    const response = await fetch('http://localhost:8000/objects/share_file', {
-      method: 'POST',
+    const response = await fetch("http://localhost:8000/objects/share_file", {
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
       body: JSON.stringify(data),
     });
@@ -228,7 +258,8 @@ const FilePopover = ({ title, access, toggel, objectId, fileName }) => {
     if (response.ok) {
       const responseData = await response.json();
       setUsers(responseData.combined_users);
-      console.log(responseData)
+      setUsers((prev) => prev.filter((user) => user.username !== userLoggedIn));
+      console.log(responseData);
       handleOpenModal();
     } else {
       const errorData = await response.json();
@@ -237,33 +268,42 @@ const FilePopover = ({ title, access, toggel, objectId, fileName }) => {
   };
   return (
     <>
-      <AddPeople show={showModal} onClose={handleCloseModal} objectId={objectId} users={users} />
+      <AddPeople
+        show={showModal}
+        onClose={handleCloseModal}
+        objectId={objectId}
+        users={users}
+      />
       <div className="div">
         <div onClick={toggel}>
           <img src={close} className="close-icon" />
         </div>
         <div className="div-2">{title}</div>
-        <div className="div-5" onClick={handleGetUsers}>
-          <img
-            loading="lazy"
-            src="https://cdn.builder.io/api/v1/image/assets/TEMP/926dadbb5b1c4a288e0397f6c28706a6960c00a13627f11245f7c44d6b11b7f0?"
-          />
-          <div className="div-6">Share</div>
-        </div>
-        <div className="div-5" onClick={handleDownload} download>
+        {access && (
+          <div className="div-5" onClick={handleGetUsers}>
+            <img
+              loading="lazy"
+              src="https://cdn.builder.io/api/v1/image/assets/TEMP/926dadbb5b1c4a288e0397f6c28706a6960c00a13627f11245f7c44d6b11b7f0?"
+            />
+            <div className="div-6">Share</div>
+          </div>
+        )}
+        <div className="div-5" onClick={handleDownload}>
           <img
             loading="lazy"
             src="https://cdn.builder.io/api/v1/image/assets/TEMP/54a084866dca98a8c1c2265b001eadbb6bcea86e97014eeefe0bf1a7cfdba48a?"
           />
           <div className="div-6">Download</div>
         </div>
-        <div className="div-3" onClick={handleDelete}>
-          <img
-            loading="lazy"
-            src="https://cdn.builder.io/api/v1/image/assets/TEMP/6d311441253fbf2162f3422e3b389a624496183f15680abdea9bc28d3ce29cf6?"
-          />
-          <div className="div-6">Delete</div>
-        </div>
+        {access && (
+          <div className="div-3" onClick={handleDelete}>
+            <img
+              loading="lazy"
+              src="https://cdn.builder.io/api/v1/image/assets/TEMP/6d311441253fbf2162f3422e3b389a624496183f15680abdea9bc28d3ce29cf6?"
+            />
+            <div className="div-6">Delete</div>
+          </div>
+        )}
       </div>
 
       {/* <style jsx>{`
@@ -404,6 +444,8 @@ function MyComponent() {
                 type={item.type}
                 altText={item.file_name}
                 objectId={item.id}
+                userLoggedIn={username}
+                objects={objects}
               />
             ))}
           </section>
