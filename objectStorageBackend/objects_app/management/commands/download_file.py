@@ -8,11 +8,8 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         bucket_name = 'object-storage-web-project'
-        endpoint_url = settings.AWS_ENDPOINT_URL
-        aws_access_key_id = settings.AWS_ACCESS_KEY_ID
-        aws_secret_access_key = settings.AWS_SECRET_ACCESS_KEY
 
-        success = download_file(bucket_name, endpoint_url, aws_access_key_id, aws_secret_access_key)
+        success = download_file(bucket_name)
 
         if success:
             self.stdout.write(self.style.SUCCESS('File downloaded successfully'))
