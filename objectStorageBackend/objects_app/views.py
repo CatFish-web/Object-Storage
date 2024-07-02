@@ -6,7 +6,7 @@ from .models import Object, CustomUser
 from .serializers import ObjectSerializer
 from django.http import JsonResponse
 from django.conf import settings
-from objects_app.utils import upload_file, objects_list, download_file, delete_file
+from objects_app.utils import S3ResourceSingleton, upload_file, objects_list, download_file, delete_file
 
 
 # class ObjectCreateView(generics.CreateAPIView):
@@ -15,10 +15,9 @@ from objects_app.utils import upload_file, objects_list, download_file, delete_f
 
 @csrf_exempt
 def upload_file_view(request):
-    bucket_name = 'object-storage-web-project'
-    endpoint_url = settings.AWS_ENDPOINT_URL
-    aws_access_key_id = settings.AWS_ACCESS_KEY_ID
-    aws_secret_access_key = settings.AWS_SECRET_ACCESS_KEY
+
+    # Initialize the Singleton with settings
+    S3ResourceSingleton()
 
     if request.method == 'POST':
         try:
@@ -38,7 +37,7 @@ def upload_file_view(request):
                 owner=settings.LOGGED_IN_USER
             )
 
-            success = upload_file(bucket_name, endpoint_url, aws_access_key_id, aws_secret_access_key, file, object.id)
+            success = upload_file(file, object.id)
 
             if success:
                 return JsonResponse({'message': 'File uploaded successfully'}, status=200)
@@ -56,19 +55,17 @@ def upload_file_view(request):
 
 @csrf_exempt
 def download_file_view(request):
-    bucket_name = 'object-storage-web-project'
-    endpoint_url = settings.AWS_ENDPOINT_URL
-    aws_access_key_id = settings.AWS_ACCESS_KEY_ID
-    aws_secret_access_key = settings.AWS_SECRET_ACCESS_KEY
+    # Initialize the Singleton with settings
+    S3ResourceSingleton()
 
     if request.method == 'POST':
         file = json.loads(request.body)
         file_name = file["file_name"]
         object_id = file["object_id"]
-        file_format = file["type"]
-        download_path = f"{file_name}.{file_format}"
+        # file_format = file["type"]
+        download_path = f"D:/All/Git Projects/Object-Storage/CF-Storage/Downloads/{file_name}"
 
-        success = download_file(bucket_name, endpoint_url, aws_access_key_id, aws_secret_access_key, download_path, object_id)
+        success = download_file(download_path, object_id)
 
         if success:
             return JsonResponse({'message': 'File downloaded successfully'}, status=200)
@@ -81,13 +78,12 @@ def download_file_view(request):
 
 @csrf_exempt
 def objects_list_view(request):
-    bucket_name = 'object-storage-web-project'
-    endpoint_url = settings.AWS_ENDPOINT_URL
-    aws_access_key_id = settings.AWS_ACCESS_KEY_ID
-    aws_secret_access_key = settings.AWS_SECRET_ACCESS_KEY
+
+    # Initialize the Singleton with settings
+    S3ResourceSingleton()
 
     if request.method == 'GET':
-        object_key = objects_list(bucket_name, endpoint_url, aws_access_key_id, aws_secret_access_key)
+        object_key = objects_list()
         if object_key is not None:
             # Fetch objects owned by the logged-in user
             owned_objects = Object.objects.filter(owner=settings.LOGGED_IN_USER)
@@ -114,19 +110,58 @@ def objects_list_view(request):
 
 @csrf_exempt
 def delete_file_view(request):
-    bucket_name = 'object-storage-web-project'
-    endpoint_url = settings.AWS_ENDPOINT_URL
-    aws_access_key_id = settings.AWS_ACCESS_KEY_ID
-    aws_secret_access_key = settings.AWS_SECRET_ACCESS_KEY
+
+    # Initialize the Singleton with settings
+    S3ResourceSingleton()
 
     if request.method == 'POST':
-        file = request.body
-        object_name = file["object_name"]
-        success = delete_file(bucket_name, endpoint_url, aws_access_key_id, aws_secret_access_key, object_name)
+        file = json.loads(request.body)
+        object_id = file["object_id"]
+        success = delete_file(object_id)
 
         if success:
+            Object.objects.get(id=object_id).delete()
             return JsonResponse({'message': 'File deleted successfully'}, status=200)
         else:
             return JsonResponse({'message': 'Failed to delete file'}, status=500)
     else:
         return JsonResponse({'error': 'POST method required'}, status=400)
+
+
+@csrf_exempt
+def share_file_view(request):
+
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        object_id = data["object_id"]
+
+        users_with_access = CustomUser.objects.filter(accessed_objects=object_id)
+        all_users = CustomUser.objects.all()
+        # Remove users with access from all users
+        users_without_access = all_users.difference(users_with_access)
+        # ye list!
+
+        # Serialize the lists of users
+        ser_users_with_access = ObjectSerializer(users_with_access, many=True).data
+        ser_users_without_access = ObjectSerializer(users_without_access, many=True).data
+
+        return JsonResponse({
+            'message': 'List of users showed successfully',
+            'users_with_access': ser_users_with_access,
+            'users_without_access': ser_users_without_access
+        }, status=200)
+
+    else:
+        return JsonResponse({'error': 'POST method required'}, status=400)
+
+
+@csrf_exempt
+def update_access_view(request):
+
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        object_id = data["object_id"]
+        usernames_with_access = data.get("usernames_with_access", [])
+        usernames_without_access = data.get("usernames_without_access", [])
+
+        users_with_access = CustomUser.objects.filter(accessed_objects=object_id)
