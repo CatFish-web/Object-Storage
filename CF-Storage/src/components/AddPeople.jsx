@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import "./AddPeopleStyle.css"
 
-function ProfileCard({ name, email, imgSrc, altText, iconAltText, hasAccess }) {
+function ProfileCard({ name, email, hasAccess }) {
     // Set the initial state of the checkbox based on the prop
     const [isChecked, setIsChecked] = useState(hasAccess);
 
@@ -20,7 +20,7 @@ function ProfileCard({ name, email, imgSrc, altText, iconAltText, hasAccess }) {
       <section className="profile-card">
         <input type="checkbox" checked={isChecked} onChange={handleCheckboxChange}/> 
         {/* <img src={iconSrc} className="profile-icon" alt={iconAltText} /> */}
-        <img src={imgSrc} className="profile-img" alt={altText} />
+        <img src={imgSrc} className="profile-img" />
         <div className="profile-info">
           <h2 className="profile-name">{name}</h2>
           <p className="profile-email">{email}</p>
@@ -30,7 +30,8 @@ function ProfileCard({ name, email, imgSrc, altText, iconAltText, hasAccess }) {
   );
 }
 
-function MyComponent({show, onClose}) {
+function MyComponent({show, onClose, objectId}) {
+  const [people, setPeople] = useState([]);
   const profiles = [
     {
       name: "Alice Emma",
@@ -115,16 +116,36 @@ function MyComponent({show, onClose}) {
     },
   ];
 
-  // if (!show) {
-  //   return null;
-  // }
+  if (!show) {
+    return null;
+  }
 
-  const handleSubmit = (e) => {
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Add the logic to handle adding people here
-    console.log("bye bye");
+
+    const data = {object_id: objectId}
+    console.log(data);
+    const response = await fetch('http://localhost:8000/objects/kjndlkwn', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(data),
+    });
     onClose();
+
+
+    if (response.ok) {
+      const responseData = await response.json();
+      setPeople(responseData.users);
+      console.log(responseData)
+    } else {
+      const errorData = await response.json();
+      setError(errorData.error);
+    }
   };
+
   return (
     <div className='modal-overlay'>
       <div className='modal-content'>
@@ -143,10 +164,6 @@ function MyComponent({show, onClose}) {
             key={profile.email}
             name={profile.name}
             email={profile.email}
-            imgSrc={profile.imgSrc}
-            iconSrc={profile.iconSrc}
-            altText={profile.altText}
-            iconAltText={profile.iconAltText}
             hasAccess={profile.access}
           />
         ))}
