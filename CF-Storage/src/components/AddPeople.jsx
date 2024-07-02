@@ -20,7 +20,8 @@ function ProfileCard({ name, email, hasAccess }) {
       <section className="profile-card">
         <input type="checkbox" checked={isChecked} onChange={handleCheckboxChange}/> 
         {/* <img src={iconSrc} className="profile-icon" alt={iconAltText} /> */}
-        <img src={imgSrc} className="profile-img" />
+        <img src="https://cdn.builder.io/api/v1/image/assets/TEMP/64704d70ae65fb23ca56a665889a561794a384add85b66caa6931140b9db8caa?apiKey=61b20d1a1e1848d2bcaf0e442b285d46&"
+         className="profile-img" />
         <div className="profile-info">
           <h2 className="profile-name">{name}</h2>
           <p className="profile-email">{email}</p>
@@ -30,8 +31,8 @@ function ProfileCard({ name, email, hasAccess }) {
   );
 }
 
-function MyComponent({show, onClose, objectId}) {
-  const [people, setPeople] = useState([]);
+function MyComponent({show, onClose, objectId, users}) {
+  // const [users, setUsers] = useState(users);
   const profiles = [
     {
       name: "Alice Emma",
@@ -121,30 +122,6 @@ function MyComponent({show, onClose, objectId}) {
   }
 
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    const data = {object_id: objectId}
-    console.log(data);
-    const response = await fetch('http://localhost:8000/objects/kjndlkwn', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(data),
-    });
-    onClose();
-
-
-    if (response.ok) {
-      const responseData = await response.json();
-      setPeople(responseData.users);
-      console.log(responseData)
-    } else {
-      const errorData = await response.json();
-      setError(errorData.error);
-    }
-  };
 
   return (
     <div className='modal-overlay'>
@@ -159,17 +136,17 @@ function MyComponent({show, onClose, objectId}) {
           <p className="search-title">Search people</p>
         </section>
         <section className="people-container">
-        {profiles.map((profile) => (
+        {users.map((user) => (
           <ProfileCard
-            key={profile.email}
-            name={profile.name}
-            email={profile.email}
-            hasAccess={profile.access}
+            key={user.email}
+            name={user.username}
+            email={user.email}
+            hasAccess={user.accessed_objects.includes(objectId)}
           />
         ))}
         </section>
         <footer className="footer">
-          <button className="footer-button" onClick={handleSubmit}>Continue</button>
+          <button className="footer-button" >Continue</button>
         </footer>
       </div>
       </div>

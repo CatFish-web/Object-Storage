@@ -6,7 +6,7 @@ from .models import Object, CustomUser
 class CustomUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
-        fields = ['username', 'email']
+        fields = '__all__'
 
 
 class ObjectSerializer(serializers.ModelSerializer):
@@ -15,3 +15,4 @@ class ObjectSerializer(serializers.ModelSerializer):
     class Meta:
         model = Object
         fields = '__all__'
+
