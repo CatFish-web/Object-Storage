@@ -94,7 +94,7 @@ def create_user(request):
 @require_http_methods(["POST"])
 def login_view(request):
     data = json.loads(request.body.decode("utf-8"))
-    identifier = data.get('username')  # This can be either email or username
+    identifier = data.get('identifier')  # This can be either email or username
     password = data.get('password')
 
     try:

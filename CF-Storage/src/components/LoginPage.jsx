@@ -28,9 +28,7 @@ function MyComponent() {
   const handleLogin = async (e) => {
     e.preventDefault();
 
-    // Determine if the input is an email or a username
-    const isEmail = input.includes('@');
-    const data = isEmail ? { email: input, password } : { username: input, password };
+    const data = {identifier: input, password }
     console.log(data);
     const response = await fetch('http://localhost:8000/users/login', {
       method: 'POST',
