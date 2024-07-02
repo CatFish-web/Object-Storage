@@ -108,7 +108,7 @@ def download_file(bucket_name, endpoint_url, aws_access_key_id, aws_secret_acces
             return False
 
 
-def delete_file(bucket_name, endpoint_url, aws_access_key_id, aws_secret_access_key, object_name):
+def delete_file(bucket_name, endpoint_url, aws_access_key_id, aws_secret_access_key, object_id):
     try:
         s3_resource = boto3.resource(
             's3',
@@ -121,10 +121,8 @@ def delete_file(bucket_name, endpoint_url, aws_access_key_id, aws_secret_access_
         return False
     else:
         try:
-            object_name = 'file1.txt'
-
             bucket = s3_resource.Bucket(bucket_name)
-            object = bucket.Object(object_name)
+            object = bucket.Object(object_id)
 
             response = object.delete(
                 # VersionId='string',
