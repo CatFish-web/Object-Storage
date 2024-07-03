@@ -2,6 +2,7 @@ import * as React from 'react';
 import { useLocation } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
 import "./VerifyPage.css"
+import "./UserInteraction.css";
 import logo from '../assets/Vector Logo (1).svg';
 import sendMailImage from '../assets/Illustration.svg';
 

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import "./LoginPage.css"
+import "./UserInteraction.css";
 import logo from '../assets/Vector Logo (1).svg';
 
 function Card({ icon, title, subtitle, description, imgSrc, imgAlt }) {
@@ -42,10 +43,15 @@ function MyComponent() {
       const responseData = await response.json();
       const {username, email} = responseData
       console.log(email)
+      const userObj = {
+        username: username,
+        email: email
+      };
+      sessionStorage.setItem('loggedInUser', JSON.stringify(userObj));
       // Save token to local storage or handle authenticated user
       // localStorage.setItem('token', responseData.token);
       // navigate('/dashboard'); // Redirect to a protected route
-      navigate('/', {state: {username, email}})
+      navigate('/')
     } else {
       const errorData = await response.json();
       setError(errorData.detail);

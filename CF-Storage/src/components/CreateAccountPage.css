@@ -1,4 +1,4 @@
-.main-container {
+/* .main-container {
   border-radius: 34px;
   background-color: #fff;
   display: flex;
@@ -99,7 +99,7 @@
   .card-image {
     margin-top: 40px;
   }
-}
+} */
 .login-container {
   margin-top: 70px;
   padding: 0 20px;
@@ -118,35 +118,7 @@
     font-size: 40px;
   }
 }
-.input-wrapper {
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  margin-top: 44px;
-  border-radius: 12px;
-  box-shadow: 0 10px 30px rgba(66, 71, 97, 0.1);
-  background-color: #fff;
-  padding: 16px;
-}
-@media (max-width: 991px) {
-  .input-wrapper {
-    margin-top: 40px;
-    padding-right: 20px;
-  }
-}
-.input-field {
-  font-family: Poppins, sans-serif;
-  font-weight: 600;
-  border: none;
-  font-size: 14px;
-  padding: 11px;
-  padding-left: 2px;
-}
-::placeholder {
-  color: #a3b2c7;
-  opacity: 0.6;
-  padding-left: 0;
-}
+
 .create-account-button {
   border: none;
   width: 100%;
