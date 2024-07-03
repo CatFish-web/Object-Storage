@@ -7,6 +7,7 @@ import upload from "../assets/Upload.svg";
 import "./HomePage.css";
 import Popover from "../components/FilePopover.jsx";
 import AddPeople from "../components/AddPeople.jsx";
+import Search from "../components/Search.jsx";
 import music from "../assets/music.png";
 import video from "../assets/video.png";
 import pdf from "../assets/pdf.png";
@@ -14,6 +15,7 @@ import image from "../assets/image.png";
 import others from "../assets/other.png";
 import textIcon from "../assets/text.png";
 import close from "../assets/close.png";
+import Search from "./Search.jsx";
 
 const getImageSrcByFileType = (fileType) => {
   switch (fileType) {
@@ -145,32 +147,32 @@ const FilePopover = ({
 
   const handleDownload = async () => {
     const requestData = {
-        object_id: objectId,
+      object_id: objectId,
     };
 
     try {
-        const response = await axios.get(
-            "http://localhost:8000/objects/download_file",
-            {
-                params: requestData,
-            }
-        );
+      const response = await axios.get(
+        "http://localhost:8000/objects/download_file",
+        {
+          params: requestData,
+        }
+      );
 
-        const downloadLink = response.data.download_link;
-        const fileNamee = "test.png"
-        console.log(downloadLink);
-        const link = document.createElement("a");
-        link.href = downloadLink;
-        console.log(title)
-        link.setAttribute("download", fileNamee); // You might want to ensure the title has the correct file extension if necessary
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
+      const downloadLink = response.data.download_link;
+      const fileNamee = "test.png";
+      console.log(downloadLink);
+      const link = document.createElement("a");
+      link.href = downloadLink;
+      console.log(title);
+      link.setAttribute("download", fileNamee); // You might want to ensure the title has the correct file extension if necessary
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
     } catch (error) {
-        console.error("Error downloading file:", error);
-        alert("Failed to download file");
+      console.error("Error downloading file:", error);
+      alert("Failed to download file");
     }
-};
+  };
 
   const handleDelete = async () => {
     const requestData = {
@@ -265,6 +267,29 @@ function MyComponent() {
   const [size, setSize] = useState(0);
   const [type, setType] = useState("");
 
+  const [objects, setObjects] = useState([]);
+  const [totalPages, setTotalPages] = useState(0);
+  const [query, setQuery] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+
+  useEffect(() => {
+    const fetchFiles = async () => {
+        try {
+            const response = await axios.get('http://localhost:8000/objects/objects_list', {
+                params: { query: query, page: currentPage }
+            });
+            setObjects(response.data.list_of_objects);
+            setTotalPages(response.data.total_pages);
+            setTotalSize(response.data.total_size);
+        } catch (error) {
+            console.error('Error fetching files:', error);
+        }
+    };
+
+    fetchFiles();
+}, [query, currentPage]);
+
+
   const [totalSize, setTotalSize] = useState(0);
 
   // const handleTotalSize = ({objectSize}) => {
@@ -272,7 +297,7 @@ function MyComponent() {
   // };
 
   const fileInputRef = useRef(null);
-  const [objects, setObjects] = useState([]);
+ 
 
   const handleFileChange = (e) => {
     const selectedFile = e.target.files[0];
@@ -290,41 +315,59 @@ function MyComponent() {
     }
   };
 
-  const [page, setPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(3);
+  // const [searchQuery, setSearchQuery] = useState("");
+  // const [filteredObjects, setFilteredObjects] = useState(objects);
 
-  useEffect(() => {
-    fetchData(page);
-  }, [page]);
+  // const onChangeSearch = (q) => {
+  //   setSearchQuery(q);
+  //   if (q != ""){
+  //   setFilteredObjects(filterObjects(objects, searchQuery));
+  //   }else{
+  //     setFilteredObjects(objects);
+  //   }
+    
+  // };
 
-  const fetchData = async (page) => {
-    try {
-      const response = await axios.get(
-        "http://localhost:8000/objects/objects_list",
-        {
-          params: {
-            page: page,
-          },
-        }
-      );
+  // const filterObjects = (objects, sq) =>
+  //   objects.filter(
+  //     (object) => object.file_name.includes(sq) || object.type.includes(sq)
+  //   );
+    
+  // const [page, setPage] = useState(1);
 
-      setObjects(response.data.list_of_objects);
-      setTotalPages(response.data.total_pages);
-      setTotalSize(response.data.total_size);
-    } catch (error) {
-      console.error("Error fetching data:", error);
-    }
-  };
+
+  // useEffect(() => {
+  //   fetchData(page);
+  // }, [page]);
+
+  // const fetchData = async (page) => {
+  //   try {
+  //     const response = await axios.get(
+  //       "http://localhost:8000/objects/objects_list",
+  //       {
+  //         params: {
+  //           page: page,
+  //         },
+  //       }
+  //     );
+
+  //     setObjects(response.data.list_of_objects);
+  //     setTotalPages(response.data.total_pages);
+  //     setTotalSize(response.data.total_size);
+  //   } catch (error) {
+  //     console.error("Error fetching data:", error);
+  //   }
+  // };
 
   const handleNextPage = () => {
-    if (page < totalPages) {
-      setPage((prevPage) => prevPage + 1);
+    if (currentPage < totalPages) {
+      setCurrentPage((prevPage) => prevPage + 1);
     }
   };
 
   const handlePreviousPage = () => {
-    if (page > 1) {
-      setPage((prevPage) => prevPage - 1);
+    if (currentPage > 1) {
+      setCurrentPage((prevPage) => prevPage - 1);
     }
   };
 
@@ -382,15 +425,24 @@ function MyComponent() {
             </div>
             <h1 className="header-title">Storage</h1>
           </div>
-          <div className="search-bar">
+          {/* <div className="search-bar">
             <img
               loading="lazy"
               src="https://cdn.builder.io/api/v1/image/assets/TEMP/5308af8b2c2ceea3186be55a4c443dc4042525f0d6a68f51cbfc153ac84cb32a?apiKey=61b20d1a1e1848d2bcaf0e442b285d46&"
               className="search-icon"
               alt="Search icon"
             />
-            <span className="search-text">Search ...</span>
-          </div>
+            <input className="search-text">Search ...</input>
+            <input
+              type="search"
+              className="search_input"
+              placeholder="Search..."
+              onChange={(e) => onChangeSearch(e.target.value)}
+            />
+          </div> */}
+          <Search
+          setQuery={setQuery}
+          setCurrentPage={setCurrentPage}/>
           <div className="header-right">
             <input
               type="file"
@@ -440,17 +492,17 @@ function MyComponent() {
             <div
               className={`prev-page ${page === 1 ? "disabled" : "enabled"}`}
               onClick={handlePreviousPage}
-              disabled={page === 1}
+              disabled={currentPage === 1}
             >
               Prev
             </div>
-            <div className="page-number">{page}</div>
+            <div className="page-number">{currentPage}</div>
             <div
               className={`next-page ${
-                page === totalPages ? "disabled" : "enabled"
+                currentPage === totalPages ? "disabled" : "enabled"
               }`}
               onClick={handleNextPage}
-              disabled={page === totalPages}
+              disabled={currentPage === totalPages}
             >
               Next
             </div>
