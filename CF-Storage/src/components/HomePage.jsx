@@ -3,9 +3,7 @@ import { useLocation } from "react-router-dom";
 import { format } from "date-fns";
 import axios from "axios";
 import logo from "../assets/Vector Logo.svg";
-import upload from "../assets/Upload.svg";
 import "./HomePage.css";
-import Popover from "../components/FilePopover.jsx";
 import AddPeople from "../components/AddPeople.jsx";
 import Search from "../components/Search.jsx";
 import music from "../assets/music.png";
@@ -15,7 +13,7 @@ import image from "../assets/image.png";
 import others from "../assets/other.png";
 import textIcon from "../assets/text.png";
 import close from "../assets/close.png";
-import Search from "./Search.jsx";
+
 
 const getImageSrcByFileType = (fileType) => {
   switch (fileType) {
@@ -260,7 +258,19 @@ const FilePopover = ({
 
 function MyComponent() {
   const location = useLocation();
-  const { username, email } = location.state || { username: "", email: "" };
+  // const { username, email } = location.state || { username: "", email: "" };
+  const loggedInUserJSON = sessionStorage.getItem('loggedInUser');
+  
+  const [username, setUsername] = useState("")
+  const [email, setEmail] = useState("")
+
+  useEffect(() => {
+    if (loggedInUserJSON) {
+      const loggedInUser = JSON.parse(loggedInUserJSON);
+      setUsername(loggedInUser.username); // Update username state
+      setEmail(loggedInUser.email); // Update email state
+    }
+  }, []); // Empty dependency array ensures this effect runs only once
 
   const [file, setFile] = useState(null);
   const [fileName, setFileName] = useState("");
@@ -276,7 +286,7 @@ function MyComponent() {
     const fetchFiles = async () => {
         try {
             const response = await axios.get('http://localhost:8000/objects/objects_list', {
-                params: { query: query, page: currentPage }
+                params: { query: query, page: currentPage, username: username }
             });
             setObjects(response.data.list_of_objects);
             setTotalPages(response.data.total_pages);
@@ -289,12 +299,7 @@ function MyComponent() {
     fetchFiles();
 }, [query, currentPage]);
 
-
   const [totalSize, setTotalSize] = useState(0);
-
-  // const handleTotalSize = ({objectSize}) => {
-  //   setTotalSize((prev) => prev + objectSize);
-  // };
 
   const fileInputRef = useRef(null);
  
@@ -315,49 +320,6 @@ function MyComponent() {
     }
   };
 
-  // const [searchQuery, setSearchQuery] = useState("");
-  // const [filteredObjects, setFilteredObjects] = useState(objects);
-
-  // const onChangeSearch = (q) => {
-  //   setSearchQuery(q);
-  //   if (q != ""){
-  //   setFilteredObjects(filterObjects(objects, searchQuery));
-  //   }else{
-  //     setFilteredObjects(objects);
-  //   }
-    
-  // };
-
-  // const filterObjects = (objects, sq) =>
-  //   objects.filter(
-  //     (object) => object.file_name.includes(sq) || object.type.includes(sq)
-  //   );
-    
-  // const [page, setPage] = useState(1);
-
-
-  // useEffect(() => {
-  //   fetchData(page);
-  // }, [page]);
-
-  // const fetchData = async (page) => {
-  //   try {
-  //     const response = await axios.get(
-  //       "http://localhost:8000/objects/objects_list",
-  //       {
-  //         params: {
-  //           page: page,
-  //         },
-  //       }
-  //     );
-
-  //     setObjects(response.data.list_of_objects);
-  //     setTotalPages(response.data.total_pages);
-  //     setTotalSize(response.data.total_size);
-  //   } catch (error) {
-  //     console.error("Error fetching data:", error);
-  //   }
-  // };
 
   const handleNextPage = () => {
     if (currentPage < totalPages) {
@@ -371,18 +333,6 @@ function MyComponent() {
     }
   };
 
-  // useEffect(() => {
-  //   fetch("http://localhost:8000/objects/objects_list")
-  //     .then((response) => response.json())
-  //     .then((data) => {
-  //       if (data.list_of_objects) {
-  //         setObjects(data.list_of_objects);
-  //       } else {
-  //         setError(data.message);
-  //       }
-  //     })
-  //     .catch((error) => setError("Failed to fetch objects"));
-  // }, []);
 
   const handleSubmit = async (file, fileName, size, type) => {
     const data = new FormData();
@@ -425,21 +375,6 @@ function MyComponent() {
             </div>
             <h1 className="header-title">Storage</h1>
           </div>
-          {/* <div className="search-bar">
-            <img
-              loading="lazy"
-              src="https://cdn.builder.io/api/v1/image/assets/TEMP/5308af8b2c2ceea3186be55a4c443dc4042525f0d6a68f51cbfc153ac84cb32a?apiKey=61b20d1a1e1848d2bcaf0e442b285d46&"
-              className="search-icon"
-              alt="Search icon"
-            />
-            <input className="search-text">Search ...</input>
-            <input
-              type="search"
-              className="search_input"
-              placeholder="Search..."
-              onChange={(e) => onChangeSearch(e.target.value)}
-            />
-          </div> */}
           <Search
           setQuery={setQuery}
           setCurrentPage={setCurrentPage}/>
@@ -490,7 +425,7 @@ function MyComponent() {
           </section>
           <div className="pagination">
             <div
-              className={`prev-page ${page === 1 ? "disabled" : "enabled"}`}
+              className={`prev-page ${currentPage === 1 ? "disabled" : "enabled"}`}
               onClick={handlePreviousPage}
               disabled={currentPage === 1}
             >

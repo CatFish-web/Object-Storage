@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from 'axios';
 import "./CreateAccountPage.css";
+import "./UserInteraction.css";
 import logo from "../assets/Vector Logo (1).svg";
 
 function Card({ icon, title, subtitle, description, imgSrc, imgAlt }) {

@@ -4,24 +4,10 @@
   display: flex;
   padding-bottom: 40px;
   flex-direction: column;
+
 }
-.main-header {
-  background-color: var(--Default-White, #fff);
-  display: flex;
-  width: 100%;
-  gap: 40px;
-  justify-content: space-evenly;
-  padding-top: 30px;
-  padding-bottom: 30px;
-  align-items: center;
-}
-@media (max-width: 991px) {
-  .main-header {
-    max-width: 100%;
-    flex-wrap: wrap;
-    padding: 0 20px;
-  }
-}
+
+
 .header-left {
   display: flex;
   gap: 17px;
@@ -57,27 +43,7 @@
   text-align: center;
   justify-content: space-between;
 }
-.search-bar {
-  display: flex;
-  align-items: center;
-  box-shadow: 0 30px 40px rgba(89, 104, 178, 0.06),
-    0 0 30px rgba(89, 104, 178, 0.06);
-  background-color: #fff;
-  border-radius: 30px;
-  padding: 16px;
-  gap: 7px;
-  width: 30%;
-  height: 20px;
-}
-.search-icon {
-  width: 20px;
-  aspect-ratio: 1;
-  object-fit: auto;
-}
-.search-text {
-  font-feature-settings: "clig" off, "liga" off;
-  font-family: Poppins, sans-serif;
-}
+
 .profile-button {
   display: flex;
   align-items: center;
@@ -172,6 +138,7 @@
   .files-section {
     flex-wrap: wrap;
     margin-top: 40px;
+    width: 100%;
   }
 }
 .file-item {
@@ -374,7 +341,58 @@
   height: 30px;
   border: none;
 }
-
+.search-bar{
+  display: flex;
+  align-items: center;
+  box-shadow: 0 30px 40px rgba(89, 104, 178, 0.06),
+    0 0 30px rgba(89, 104, 178, 0.06);
+  background-color: #fff;
+  width: 100%;
+  height: 20px;
+  border-radius: 30px;
+  padding: 16px;
+  gap: 7px;
+}
+.search-icon {
+  width: 20px;
+  aspect-ratio: 1;
+  object-fit: auto;
+}
+.search-text {
+  font-feature-settings: "clig" off, "liga" off;
+  font-family: Poppins, sans-serif;
+}
 .search_input:focus{
   outline: none;
+}
+.search-form{
+  display: flex;
+  justify-self: center;
+  align-items: center;
+  width: 500px;
+}
+.main-header {
+  background-color: var(--Default-White, #fff);
+  display: flex;
+  width: 100%;
+  justify-content: center;
+  column-gap: 200px;
+  row-gap: 20px;
+  padding-top: 30px;
+  padding-bottom: 30px;
+  align-items: center;
+}
+@media (max-width: 991px) {
+  .main-header {
+    max-width: 100%;
+    flex-wrap: wrap;
+    padding: 0 20px;
+    justify-content: center!important;
+  }
+}
+@media (max-width: 1125px) {
+  .main-header {
+    justify-content: space-between;
+    column-gap: 10px;
+  }
 }

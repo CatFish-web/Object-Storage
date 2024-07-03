@@ -11,7 +11,7 @@ const Search = ({ setQuery, setCurrentPage }) => {
 
   return (
     <div>
-      <form onSubmit={handleSearch}>
+      <form className="search-form" onSubmit={handleSearch}>
         <div className="search-bar">
           <img
             loading="lazy"
