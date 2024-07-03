@@ -56,21 +56,23 @@ def upload_file_view(request):
 @csrf_exempt
 def download_file_view(request):
     # Initialize the Singleton with settings
-    S3ResourceSingleton()
+    # S3ResourceSingleton()
 
     if request.method == 'POST':
         file = json.loads(request.body)
-        file_name = file["file_name"]
+        # file_name = file["file_name"]
         object_id = file["object_id"]
+        download_link = f"https://object-storage-web-project.s3.ir-thr-at1.arvanstorage.ir/{object_id}="
         # file_format = file["type"]
-        download_path = f"D:/All/Git Projects/Object-Storage/CF-Storage/Downloads/{file_name}"
+        # download_path = f"D:/All/Git Projects/Object-Storage/CF-Storage/Downloads/{file_name}"
 
-        success = download_file(download_path, object_id)
+        # success = download_file(download_path, object_id)
 
-        if success:
-            return JsonResponse({'message': 'File downloaded successfully'}, status=200)
-        else:
-            return JsonResponse({'message': 'Failed to download file'}, status=500)
+        # if success:
+        return JsonResponse({'message': 'File downloaded successfully',
+                             'download_link': download_link}, status=200)
+        # else:
+        #     return JsonResponse({'message': 'Failed to download file'}, status=500)
 
     else:
         return JsonResponse({'message': 'Invalid request method'}, status=405)

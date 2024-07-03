@@ -62,7 +62,7 @@ def upload_file(file, object_name):
         bucket = s3_resource.Bucket(settings.BUCKET_NAME)
 
         bucket.put_object(
-            ACL='private',
+            ACL='public-read',
             Body=file,
             Key=object_name
         )
