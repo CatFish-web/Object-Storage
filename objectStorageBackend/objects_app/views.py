@@ -3,6 +3,8 @@ import json
 from django.shortcuts import get_object_or_404
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework import generics
+from rest_framework.views import APIView
+
 from .models import Object, CustomUser
 from .serializers import ObjectSerializer, CustomUserSerializer
 from django.http import JsonResponse
@@ -88,9 +90,13 @@ def objects_list_view(request):
 
     if request.method == 'GET':
         total_size = 0
+
+        query = request.GET.get('query', None)
         page_number = request.GET.get('page')
+
         object_key = objects_list()
         if object_key is not None:
+
             # Fetch objects owned by the logged-in user
             owned_objects = Object.objects.filter(owner=settings.LOGGED_IN_USER)
             if len(owned_objects) != 0:
@@ -102,6 +108,11 @@ def objects_list_view(request):
             if len(accessed_objects) != 0:
                 total_size2 = accessed_objects.aggregate(total_size=Sum('size'))['total_size']
                 total_size += total_size2
+
+            #  Check if there is a query in search bar or not
+            if query:
+                owned_objects = owned_objects.filter(file_name__icontains=query)
+                accessed_objects = accessed_objects.filter(file_name__icontains=query)
 
             # Combine both query sets into a single list
             list_of_objects = list(owned_objects) + list(accessed_objects)
