@@ -59,63 +59,6 @@ const IconTextButton = ({ iconSrc, text, altText, type, onClick }) => (
   </div>
 );
 
-const PersonCard = ({ username, email, access }) => {
-  <div>
-    <div className="person-description">
-      <div className="person-username">{username}</div>
-      <div className="person-email">{email}</div>
-    </div>
-    <div>
-      <img src="" alt="" />
-    </div>
-    <input
-      type="checkbox"
-      className={access === "accessed" ? "checked" : "unchecked"}
-    ></input>
-  </div>;
-};
-
-const AddPeoplePopup = ({}) => {
-  const peopleList = [
-    {
-      username: "ali",
-      email: "ali@gmail.com",
-      access: "accessed",
-    },
-    {
-      username: "nanaz",
-      email: "naz@gmail.com",
-      access: "",
-    },
-  ];
-  return (
-    <div className="popup-add-people">
-      <div className="popup-header-container">
-        <div className="popup-header">
-          <div className="back-button"></div>
-          <div className="header-title">Add People</div>
-        </div>
-        <div className="search-people"></div>
-      </div>
-      <section className="people-list">
-        {peopleList.map((person, index) => (
-          <>
-            <PersonCard
-              key={index}
-              username={person.username}
-              email={person.email}
-              access={person.access}
-            />
-          </>
-        ))}
-      </section>
-      <div className="popup-footer">
-        <button className="continue-button">Continue</button>
-      </div>
-    </div>
-  );
-};
-
 const FileItem = ({
   title,
   size,
@@ -202,28 +145,32 @@ const FilePopover = ({
 
   const handleDownload = async () => {
     const requestData = {
-      object_id: objectId
+        object_id: objectId,
     };
 
     try {
-      const response = await axios.post(
-        "http://localhost:8000/objects/download_file",
-        requestData
-      );
-      setDownloadLink(response.data.download_link);
-      console.log(downloadLink)
-      const link = document.createElement('a');
-      link.href = downloadLink;
-      link.setAttribute('download', title);
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+        const response = await axios.get(
+            "http://localhost:8000/objects/download_file",
+            {
+                params: requestData,
+            }
+        );
 
+        const downloadLink = response.data.download_link;
+        const fileNamee = "test.png"
+        console.log(downloadLink);
+        const link = document.createElement("a");
+        link.href = downloadLink;
+        console.log(title)
+        link.setAttribute("download", fileNamee); // You might want to ensure the title has the correct file extension if necessary
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
     } catch (error) {
-      console.error("Error downloading file:", error);
-      alert("Failed to download file");
+        console.error("Error downloading file:", error);
+        alert("Failed to download file");
     }
-  };
+};
 
   const handleDelete = async () => {
     const requestData = {
@@ -305,10 +252,6 @@ const FilePopover = ({
           </div>
         )}
       </div>
-
-      {/* <style jsx>{`
-      
-    `}</style> */}
     </>
   );
 };
@@ -321,6 +264,12 @@ function MyComponent() {
   const [fileName, setFileName] = useState("");
   const [size, setSize] = useState(0);
   const [type, setType] = useState("");
+
+  const [totalSize, setTotalSize] = useState(0);
+
+  // const handleTotalSize = ({objectSize}) => {
+  //   setTotalSize((prev) => prev + objectSize);
+  // };
 
   const fileInputRef = useRef(null);
   const [objects, setObjects] = useState([]);
@@ -341,18 +290,56 @@ function MyComponent() {
     }
   };
 
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(3);
+
   useEffect(() => {
-    fetch("http://localhost:8000/objects/objects_list")
-      .then((response) => response.json())
-      .then((data) => {
-        if (data.list_of_objects) {
-          setObjects(data.list_of_objects);
-        } else {
-          setError(data.message);
+    fetchData(page);
+  }, [page]);
+
+  const fetchData = async (page) => {
+    try {
+      const response = await axios.get(
+        "http://localhost:8000/objects/objects_list",
+        {
+          params: {
+            page: page,
+          },
         }
-      })
-      .catch((error) => setError("Failed to fetch objects"));
-  }, []);
+      );
+
+      setObjects(response.data.list_of_objects);
+      setTotalPages(response.data.total_pages);
+      setTotalSize(response.data.total_size);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }
+  };
+
+  const handleNextPage = () => {
+    if (page < totalPages) {
+      setPage((prevPage) => prevPage + 1);
+    }
+  };
+
+  const handlePreviousPage = () => {
+    if (page > 1) {
+      setPage((prevPage) => prevPage - 1);
+    }
+  };
+
+  // useEffect(() => {
+  //   fetch("http://localhost:8000/objects/objects_list")
+  //     .then((response) => response.json())
+  //     .then((data) => {
+  //       if (data.list_of_objects) {
+  //         setObjects(data.list_of_objects);
+  //       } else {
+  //         setError(data.message);
+  //       }
+  //     })
+  //     .catch((error) => setError("Failed to fetch objects"));
+  // }, []);
 
   const handleSubmit = async (file, fileName, size, type) => {
     const data = new FormData();
@@ -431,7 +418,7 @@ function MyComponent() {
         <main className="content">
           <h2 className="content-title">Objects</h2>
           <p className="total-storage">
-            <span className="total-label">Total:</span> 12GB
+            <span className="total-label">Total:</span> {formatBytes(totalSize)}
           </p>
           {/* <AddPeoplePopup /> */}
           <section className="files-section">
@@ -449,6 +436,25 @@ function MyComponent() {
               />
             ))}
           </section>
+          <div className="pagination">
+            <div
+              className={`prev-page ${page === 1 ? "disabled" : "enabled"}`}
+              onClick={handlePreviousPage}
+              disabled={page === 1}
+            >
+              Prev
+            </div>
+            <div className="page-number">{page}</div>
+            <div
+              className={`next-page ${
+                page === totalPages ? "disabled" : "enabled"
+              }`}
+              onClick={handleNextPage}
+              disabled={page === totalPages}
+            >
+              Next
+            </div>
+          </div>
         </main>
       </section>
     </>
