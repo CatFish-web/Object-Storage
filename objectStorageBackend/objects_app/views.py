@@ -7,7 +7,9 @@ from .models import Object, CustomUser
 from .serializers import ObjectSerializer, CustomUserSerializer
 from django.http import JsonResponse
 from django.conf import settings
-from objects_app.utils import S3ResourceSingleton, upload_file, objects_list, download_file, delete_file
+from objects_app.utils import S3ResourceSingleton, upload_file, objects_list, delete_file
+from django.core.paginator import Paginator
+from django.db.models import Sum
 
 
 # class ObjectCreateView(generics.CreateAPIView):
@@ -58,16 +60,25 @@ def download_file_view(request):
     # Initialize the Singleton with settings
     # S3ResourceSingleton()
 
-    if request.method == 'POST':
-        file = json.loads(request.body)
+    if request.method == 'GET':
+        object_id = request.GET.get('object_id')
         # file_name = file["file_name"]
-        object_id = file["object_id"]
-        download_link = f"https://object-storage-web-project.s3.ir-thr-at1.arvanstorage.ir/{object_id}="
+        # object_id = file["object_id"]
+        download_link = f"https://object-storage-web-project.s3.ir-thr-at1.arvanstorage.ir/{object_id}"
+        print(download_link)
+        # file_format = file["type"]
+        # download_path = f"D:/All/Git Projects/Object-Storage/CF-Storage/Downloads/{file_name}"
 
+        # success = download_file(download_path, object_id)
+
+        # if success:
         return JsonResponse({'message': 'File downloaded successfully',
                              'download_link': download_link}, status=200)
+        # else:
+        #     return JsonResponse({'message': 'Failed to download file'}, status=500)
+
     else:
-        return JsonResponse({'message': 'POST method required'}, status=400)
+        return JsonResponse({'message': 'Invalid request method'}, status=405)
 
 
 @csrf_exempt
@@ -76,23 +87,36 @@ def objects_list_view(request):
     S3ResourceSingleton()
 
     if request.method == 'GET':
+        total_size = 0
+        page_number = request.GET.get('page')
         object_key = objects_list()
         if object_key is not None:
             # Fetch objects owned by the logged-in user
             owned_objects = Object.objects.filter(owner=settings.LOGGED_IN_USER)
+            if len(owned_objects) != 0:
+                total_size1 = owned_objects.aggregate(total_size=Sum('size'))['total_size']
+                total_size += total_size1
 
             # Fetch objects accessed by the logged-in user
             accessed_objects = CustomUser.objects.get(username=settings.LOGGED_IN_USER).accessed_objects.all()
+            if len(accessed_objects) != 0:
+                total_size2 = accessed_objects.aggregate(total_size=Sum('size'))['total_size']
+                total_size += total_size2
 
             # Combine both query sets into a single list
             list_of_objects = list(owned_objects) + list(accessed_objects)
 
+            paginator = Paginator(list_of_objects, 3)
+            page_objects = paginator.get_page(page_number)
+
             # Serialize the list of objects
-            serialized_objects = ObjectSerializer(list_of_objects, many=True).data
+            serialized_objects = ObjectSerializer(page_objects, many=True).data
 
             return JsonResponse({
                 'message': 'List of objects showed successfully',
-                'list_of_objects': serialized_objects
+                'list_of_objects': serialized_objects,
+                'total_pages': page_objects.paginator.num_pages,
+                'total_size': total_size
             }, status=200)
 
         else:
@@ -174,6 +198,3 @@ def update_access_view(request):
         return JsonResponse({'message': 'Access updated successfully.'}, status=200)
 
     return JsonResponse({'error': 'POST method required'}, status=400)
-
-
-
