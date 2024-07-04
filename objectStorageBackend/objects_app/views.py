@@ -111,8 +111,8 @@ def objects_list_view(request):
 
             #  Check if there is a query in search bar or not
             if query:
-                owned_objects = owned_objects.objects.filter(title__icontains=query)
-                accessed_objects = accessed_objects.objects.filter(title__icontains=query)
+                owned_objects = owned_objects.filter(file_name__icontains=query)
+                accessed_objects = accessed_objects.filter(file_name__icontains=query)
 
             # Combine both query sets into a single list
             list_of_objects = list(owned_objects) + list(accessed_objects)

@@ -30,7 +30,7 @@ function MyComponent() {
 
     const data = {identifier: input, password }
     console.log(data);
-    const response = await fetch('http://localhost:8000/users/login', {
+    const response = await fetch('http://0.0.0.0:8000/users/login', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

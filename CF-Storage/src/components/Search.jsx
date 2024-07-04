@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import "./HomePage.css"
 
 const Search = ({ setQuery, setCurrentPage }) => {
   const [inputValue, setInputValue] = useState("");
@@ -11,7 +12,7 @@ const Search = ({ setQuery, setCurrentPage }) => {
 
   return (
     <div>
-      <form onSubmit={handleSearch}>
+      <form className="search_form" onSubmit={handleSearch}>
         <div className="search-bar">
           <img
             loading="lazy"

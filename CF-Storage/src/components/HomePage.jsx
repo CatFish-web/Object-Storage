@@ -15,7 +15,6 @@ import image from "../assets/image.png";
 import others from "../assets/other.png";
 import textIcon from "../assets/text.png";
 import close from "../assets/close.png";
-import Search from "./Search.jsx";
 
 const getImageSrcByFileType = (fileType) => {
   switch (fileType) {
@@ -425,21 +424,7 @@ function MyComponent() {
             </div>
             <h1 className="header-title">Storage</h1>
           </div>
-          {/* <div className="search-bar">
-            <img
-              loading="lazy"
-              src="https://cdn.builder.io/api/v1/image/assets/TEMP/5308af8b2c2ceea3186be55a4c443dc4042525f0d6a68f51cbfc153ac84cb32a?apiKey=61b20d1a1e1848d2bcaf0e442b285d46&"
-              className="search-icon"
-              alt="Search icon"
-            />
-            <input className="search-text">Search ...</input>
-            <input
-              type="search"
-              className="search_input"
-              placeholder="Search..."
-              onChange={(e) => onChangeSearch(e.target.value)}
-            />
-          </div> */}
+          
           <Search
           setQuery={setQuery}
           setCurrentPage={setCurrentPage}/>
@@ -490,7 +475,7 @@ function MyComponent() {
           </section>
           <div className="pagination">
             <div
-              className={`prev-page ${page === 1 ? "disabled" : "enabled"}`}
+              className={`prev-page ${currentPage === 1 ? "disabled" : "enabled"}`}
               onClick={handlePreviousPage}
               disabled={currentPage === 1}
             >
