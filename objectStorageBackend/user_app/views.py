@@ -109,7 +109,6 @@ def login_view(request):
     # Check the password
     if check_password(password, user.password):
         settings.LOGGED_IN_USER = CustomUser.objects.get(username=user.username)
-        print("cus", settings.LOGGED_IN_USER)
         login(request, user)
         return JsonResponse({
             'message': 'Login successful',
