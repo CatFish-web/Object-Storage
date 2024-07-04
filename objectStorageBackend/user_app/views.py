@@ -90,7 +90,7 @@ def create_user(request):
 
 
 @csrf_exempt
-@require_http_methods(["POST"])
+# @require_http_methods(["POST"])
 def login_view(request):
     data = json.loads(request.body.decode("utf-8"))
     identifier = data.get('identifier')  # This can be either email or username

@@ -1,3 +1,4 @@
+import email
 import json
 
 from django.shortcuts import get_object_or_404
@@ -12,7 +13,9 @@ from django.conf import settings
 from objects_app.utils import S3ResourceSingleton, upload_file, objects_list, delete_file
 from django.core.paginator import Paginator
 from django.db.models import Sum
-
+from django.core.mail import send_mail
+from django.conf import settings
+from operator import attrgetter
 
 
 # class ObjectCreateView(generics.CreateAPIView):
@@ -123,6 +126,9 @@ def objects_list_view(request):
             # Combine both query sets into a single list
             list_of_objects = list(owned_objects) + list(accessed_objects)
 
+            # Sort list_of_objects by date_created attribute
+            sorted_objects = sorted(list_of_objects, key=attrgetter('date_and_time'))
+
             paginator = Paginator(list_of_objects, 24)
             page_objects = paginator.get_page(page_number)
 
@@ -206,8 +212,19 @@ def update_access_view(request):
 
         # Update access lists
         for user in users_with_access:
-            user.accessed_objects.add(updated_object)
-            user.save()
+            if updated_object not in user.accessed_objects.all():
+                print("if")
+                user.accessed_objects.add(updated_object)
+                user.save()
+
+                # Send an email notification
+                send_mail(
+                    'Access granted to file',
+                    f'Hello {user.username},\n\nYou have been given access to file {updated_object.file_name}.',
+                    settings.EMAIL_HOST_USER,
+                    [user.email],
+                    fail_silently=False,
+                )
 
         for user in users_without_access:
             user.accessed_objects.remove(updated_object)

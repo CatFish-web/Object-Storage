@@ -66,8 +66,6 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
     "http://localhost:5174",
     "http://localhost:3000",
-    "http://localhost:3031",
-
 
     # Add more origins if needed
 ]
@@ -155,6 +153,3 @@ EMAIL_HOST_USER = 'reza.charrakh1382@gmail.com'
 EMAIL_HOST_PASSWORD = 'zgfkalcdcotaiemh'
 
 LOGGED_IN_USER = None
-
-# settings.py
-DATA_UPLOAD_MAX_MEMORY_SIZE = 104857600  # 10 MB
