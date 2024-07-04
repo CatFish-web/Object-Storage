@@ -43,7 +43,6 @@ def verify_email(request, verification_token):
     CustomUser.objects.create(username=user_data['username'], email=user_data['email'])
     user.save()
 
-
     # Delete the verification token from cache
     cache.delete(verification_token)
 

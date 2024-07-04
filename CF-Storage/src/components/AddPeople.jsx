@@ -69,7 +69,7 @@ function MyComponent({ show, onClose, objectId, users }) {
       alert(response.data.message); 
     } catch (error) {
       console.error("Error updating access:", error);
-      alert("Failed to update access");
+      // alert("Failed to update access");
     }
 
     onClose();
