@@ -43,11 +43,10 @@ def verify_email(request, verification_token):
     CustomUser.objects.create(username=user_data['username'], email=user_data['email'])
     user.save()
 
-
     # Delete the verification token from cache
     cache.delete(verification_token)
 
-    return redirect('http://localhost:5173/verify/login')
+    return redirect('http://localhost:3031/verify/login')
 
 
 @csrf_exempt  # Only for demonstration, use appropriate CSRF protection in production

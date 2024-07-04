@@ -69,17 +69,16 @@ function MyComponent() {
     e.preventDefault();
     const validationErrors = validate();
     if (Object.keys(validationErrors).length === 0) {
-      navigate("/verify", {
-        state: {
-          emailAddress: formData.email,
-        },
-      });
+      
       try {
         const response = await axios.post(
           "http://localhost:8000/users/api/create_account",
           formData
         );
-        setMessage(response.data.message);
+        if(response.ok){
+          setMessage(response.data.message);
+          navigate("/verify");
+        }
       } catch (error) {
         setMessage(error.response.data.error);
       }
@@ -172,7 +171,7 @@ function MyComponent() {
                 <p className="error">{errors.confirmPassword}</p>
               )}
             </div>
-            {message && <p>{message}</p>}
+            {message && <p className="message-error">{message}</p>}
             <button type="submit" className="create-account-button">
               Create Account
             </button>
