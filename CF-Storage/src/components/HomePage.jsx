@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { format } from "date-fns";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import logo from "../assets/Vector Logo.svg";
 import "./HomePage.css";
@@ -13,8 +14,9 @@ import image from "../assets/image.png";
 import others from "../assets/other.png";
 import textIcon from "../assets/text.png";
 import close from "../assets/close.png";
+import logout from "../assets/logout.1024x922.png";
 
-
+// Utility Functions
 const getImageSrcByFileType = (fileType) => {
   switch (fileType) {
     case "mp3":
@@ -34,6 +36,7 @@ const getImageSrcByFileType = (fileType) => {
       return others;
   }
 };
+
 const formatBytes = (bytes) => {
   if (bytes === 0) return "0 B";
   const sizes = ["B", "KB", "MB", "GB", "TB"];
@@ -44,6 +47,7 @@ const formatBytes = (bytes) => {
   return `${formattedSize} ${sizes[i]}`;
 };
 
+// Components
 const IconTextButton = ({ iconSrc, text, altText, type, onClick }) => (
   <div
     className={type === "profile" ? "profile-button" : "icon-text-button"}
@@ -68,20 +72,25 @@ const FileItem = ({
   objectId,
   userLoggedIn,
   objects,
+  onPopoverToggle,
+  isToggled,
+  closePopover,
 }) => {
-  const [isToggled, setIsToggled] = useState(false);
-  const [isOwned, setIsOwned] = useState(
-    objects.find((obj) => obj.id === objectId).owner.username === userLoggedIn
-  );
+  const [isOwned, setIsOwned] = useState(false);
 
-  const handleToggle = () => {
+  useEffect(() => {
+    setIsOwned(
+      objects.find((obj) => obj.id === objectId).owner.username === userLoggedIn
+    );
+  }, [objects, objectId, userLoggedIn]);
+
+  const handleToggle = (event) => {
     event.preventDefault();
-    setIsToggled((prevState) => !prevState);
+    onPopoverToggle(objectId);
   };
 
   const formattedDate = format(new Date(dateAndTime), "hh:mma, dd MMM");
   const formattedSize = formatBytes(size);
-
   const imgSrc = getImageSrcByFileType(type);
 
   return (
@@ -111,7 +120,7 @@ const FileItem = ({
         {isToggled && (
           <FilePopover
             title={title}
-            toggel={handleToggle}
+            closePopover={closePopover}
             objectId={objectId}
             fileName={title}
             userLoggedIn={userLoggedIn}
@@ -126,7 +135,7 @@ const FileItem = ({
 const FilePopover = ({
   title,
   access,
-  toggel,
+  closePopover,
   objectId,
   fileName,
   userLoggedIn,
@@ -144,28 +153,23 @@ const FilePopover = ({
   };
 
   const handleDownload = async () => {
-    const requestData = {
-      object_id: objectId,
-    };
+    const requestData = { object_id: objectId };
 
     try {
       const response = await axios.get(
         "http://localhost:8000/objects/download_file",
-        {
-          params: requestData,
-        }
+        { params: requestData }
       );
 
       const downloadLink = response.data.download_link;
       const fileNamee = "test.png";
-      console.log(downloadLink);
       const link = document.createElement("a");
       link.href = downloadLink;
-      console.log(title);
-      link.setAttribute("download", fileNamee); // You might want to ensure the title has the correct file extension if necessary
+      link.setAttribute("download", fileNamee);
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
+      closePopover();
     } catch (error) {
       console.error("Error downloading file:", error);
       alert("Failed to download file");
@@ -173,16 +177,15 @@ const FilePopover = ({
   };
 
   const handleDelete = async () => {
-    const requestData = {
-      object_id: objectId,
-    };
+    const requestData = { object_id: objectId };
 
     try {
       const response = await axios.post(
         "http://localhost:8000/objects/delete_file",
         requestData
       );
-      alert(response.data.message); // Show success or failure message
+      alert(response.data.message);
+      closePopover();
     } catch (error) {
       console.error("Error deleting file:", error);
       alert("Failed to delete file");
@@ -191,14 +194,11 @@ const FilePopover = ({
 
   const handleGetUsers = async (e) => {
     e.preventDefault();
-
     const data = { object_id: objectId };
-    console.log(data);
+
     const response = await fetch("http://localhost:8000/objects/share_file", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data),
     });
 
@@ -206,13 +206,13 @@ const FilePopover = ({
       const responseData = await response.json();
       setUsers(responseData.combined_users);
       setUsers((prev) => prev.filter((user) => user.username !== userLoggedIn));
-      console.log(responseData);
       handleOpenModal();
     } else {
       const errorData = await response.json();
-      setError(errorData.error);
+      console.error("Error sharing file:", errorData.error);
     }
   };
+
   return (
     <>
       <AddPeople
@@ -222,7 +222,7 @@ const FilePopover = ({
         users={users}
       />
       <div className="div">
-        <div onClick={toggel}>
+        <div onClick={closePopover}>
           <img src={close} className="close-icon" />
         </div>
         <div className="div-2">{title}</div>
@@ -256,53 +256,57 @@ const FilePopover = ({
   );
 };
 
-function MyComponent() {
+function MyComponent({ onLogout }) {
   const location = useLocation();
-  // const { username, email } = location.state || { username: "", email: "" };
-  const loggedInUserJSON = sessionStorage.getItem('loggedInUser');
-  
-  const [username, setUsername] = useState("")
-  const [email, setEmail] = useState("")
-
-  useEffect(() => {
-    if (loggedInUserJSON) {
-      const loggedInUser = JSON.parse(loggedInUserJSON);
-      setUsername(loggedInUser.username); // Update username state
-      setEmail(loggedInUser.email); // Update email state
-    }
-  }, []); // Empty dependency array ensures this effect runs only once
-
+  const navigate = useNavigate();
+  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
   const [file, setFile] = useState(null);
   const [fileName, setFileName] = useState("");
   const [size, setSize] = useState(0);
   const [type, setType] = useState("");
-
+  const [totalSize, setTotalSize] = useState(0);
+  const fileInputRef = useRef(null);
   const [objects, setObjects] = useState([]);
   const [totalPages, setTotalPages] = useState(0);
-  const [query, setQuery] = useState('');
+  const [query, setQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
+  const [activePopover, setActivePopover] = useState(null);
+
+  const handleLogoutClick = () => {
+    onLogout();
+  };
 
   useEffect(() => {
     const fetchFiles = async () => {
-        try {
-            const response = await axios.get('http://localhost:8000/objects/objects_list', {
-                params: { query: query, page: currentPage, username: username }
-            });
-            setObjects(response.data.list_of_objects);
-            setTotalPages(response.data.total_pages);
-            setTotalSize(response.data.total_size);
-        } catch (error) {
-            console.error('Error fetching files:', error);
-        }
+      try {
+        const response = await axios.get(
+          "http://localhost:8000/objects/objects_list",
+          { params: { query, page: currentPage, username } }
+        );
+        setObjects(response.data.list_of_objects);
+        setTotalPages(response.data.total_pages);
+        setTotalSize(response.data.total_size);
+      } catch (error) {
+        console.error("Error fetching files:", error);
+      }
     };
 
     fetchFiles();
-}, [query, currentPage]);
+  }, [query, currentPage, username]);
 
-  const [totalSize, setTotalSize] = useState(0);
-
-  const fileInputRef = useRef(null);
- 
+  useEffect(() => {
+    const loggedInUserJSON = sessionStorage.getItem("loggedInUser");
+    if (loggedInUserJSON) {
+      try {
+        const loggedInUser = JSON.parse(loggedInUserJSON);
+        setUsername(loggedInUser.username);
+        setEmail(loggedInUser.email);
+      } catch (error) {
+        console.error("Error parsing loggedInUserJSON:", error);
+      }
+    }
+  }, []);
 
   const handleFileChange = (e) => {
     const selectedFile = e.target.files[0];
@@ -320,7 +324,6 @@ function MyComponent() {
     }
   };
 
-
   const handleNextPage = () => {
     if (currentPage < totalPages) {
       setCurrentPage((prevPage) => prevPage + 1);
@@ -333,25 +336,19 @@ function MyComponent() {
     }
   };
 
-
   const handleSubmit = async (file, fileName, size, type) => {
     const data = new FormData();
     data.append("file", file);
     data.append("file_name", fileName);
     data.append("size", size);
     data.append("type", type);
-
-    console.log({ file, file_name: fileName, size, type });
+    data.append("username", username);
 
     try {
       const response = await axios.post(
         "http://localhost:8000/objects/upload_file",
         data,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        }
+        { headers: { "Content-Type": "multipart/form-data" } }
       );
       console.log(response.data);
     } catch (error) {
@@ -365,6 +362,18 @@ function MyComponent() {
     }
   };
 
+  const handlePopoverToggle = (objectId) => {
+    if (activePopover === objectId) {
+      setActivePopover(null);
+    } else {
+      setActivePopover(objectId);
+    }
+  };
+
+  const closePopover = () => {
+    setActivePopover(null);
+  };
+
   return (
     <>
       <section className="main-section">
@@ -375,9 +384,7 @@ function MyComponent() {
             </div>
             <h1 className="header-title">Storage</h1>
           </div>
-          <Search
-          setQuery={setQuery}
-          setCurrentPage={setCurrentPage}/>
+          <Search setQuery={setQuery} setCurrentPage={setCurrentPage} />
           <div className="header-right">
             <input
               type="file"
@@ -393,13 +400,19 @@ function MyComponent() {
               type=""
               onClick={handleButtonClick}
             />
-
-            <IconTextButton
-              iconSrc="https://cdn.builder.io/api/v1/image/assets/TEMP/d69d3b342172fb9a9b5e2c6c581363592f20ddbf72e3f4547e22e7db7fb15294?apiKey=61b20d1a1e1848d2bcaf0e442b285d46&"
-              text={username}
-              altText="Profile icon"
-              type="profile"
-            />
+            <>
+              <IconTextButton
+                iconSrc="https://cdn.builder.io/api/v1/image/assets/TEMP/d69d3b342172fb9a9b5e2c6c581363592f20ddbf72e3f4547e22e7db7fb15294?apiKey=61b20d1a1e1848d2bcaf0e442b285d46&"
+                text={username}
+                altText="Profile icon"
+                type="profile"
+              />
+              <img
+                src={logout}
+                className="logout-icon"
+                onClick={handleLogoutClick}
+              />
+            </>
           </div>
         </header>
         <main className="content">
@@ -407,7 +420,6 @@ function MyComponent() {
           <p className="total-storage">
             <span className="total-label">Total:</span> {formatBytes(totalSize)}
           </p>
-          {/* <AddPeoplePopup /> */}
           <section className="files-section">
             {objects.map((item, index) => (
               <FileItem
@@ -420,12 +432,17 @@ function MyComponent() {
                 objectId={item.id}
                 userLoggedIn={username}
                 objects={objects}
+                onPopoverToggle={handlePopoverToggle}
+                isToggled={activePopover === item.id}
+                closePopover={closePopover}
               />
             ))}
           </section>
           <div className="pagination">
             <div
-              className={`prev-page ${currentPage === 1 ? "disabled" : "enabled"}`}
+              className={`prev-page ${
+                currentPage === 1 ? "disabled" : "enabled"
+              }`}
               onClick={handlePreviousPage}
               disabled={currentPage === 1}
             >

@@ -14,6 +14,7 @@ from django.core.paginator import Paginator
 from django.db.models import Sum
 
 
+
 # class ObjectCreateView(generics.CreateAPIView):
 #     queryset = Object.objects.all()
 #     serializer_class = ObjectSerializer
@@ -25,9 +26,12 @@ def upload_file_view(request):
 
     if request.method == 'POST':
         try:
+            username = request.POST.get('username')
+            settings.LOGGED_IN_USER = CustomUser.objects.get(username=username)
             file = request.FILES['file']
             file_name = file.name
             file_size = file.size
+
             dot_position = file_name.rfind('.')
             if dot_position != -1:
                 file_type = file_name[dot_position + 1:]
@@ -93,6 +97,8 @@ def objects_list_view(request):
 
         query = request.GET.get('query', None)
         page_number = request.GET.get('page')
+        username = request.GET.get('username')
+        settings.LOGGED_IN_USER = CustomUser.objects.get(username=username)
 
         object_key = objects_list()
         if object_key is not None:
@@ -117,7 +123,7 @@ def objects_list_view(request):
             # Combine both query sets into a single list
             list_of_objects = list(owned_objects) + list(accessed_objects)
 
-            paginator = Paginator(list_of_objects, 3)
+            paginator = Paginator(list_of_objects, 24)
             page_objects = paginator.get_page(page_number)
 
             # Serialize the list of objects
@@ -160,6 +166,7 @@ def share_file_view(request):
     if request.method == 'POST':
         data = json.loads(request.body)
         object_id = data["object_id"]
+
 
         users_with_access = CustomUser.objects.filter(accessed_objects=object_id)
         all_users = CustomUser.objects.all()

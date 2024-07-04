@@ -1,16 +1,16 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import "./LoginPage.css"
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import "./LoginPage.css";
 import "./UserInteraction.css";
-import logo from '../assets/Vector Logo (1).svg';
+import logo from "../assets/Vector Logo (1).svg";
 
 function Card({ icon, title, subtitle, description, imgSrc, imgAlt }) {
   return (
     <section className="card">
       <div className="icon-wrapper">
-      <div className="header-icon">
-              <img className="header-icon-img" src={icon}/>
-            </div>
+        <div className="header-icon">
+          <img className="header-icon-img" src={icon} />
+        </div>
         <h2 className="card-title">{title}</h2>
       </div>
       <h3 className="card-subtitle">{subtitle}</h3>
@@ -20,44 +20,44 @@ function Card({ icon, title, subtitle, description, imgSrc, imgAlt }) {
   );
 }
 
-function MyComponent() {
-  const [input, setInput] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+function MyComponent({ onLogin }) {
+  const [input, setInput] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
   const navigate = useNavigate();
 
   const handleLogin = async (e) => {
     e.preventDefault();
 
-    const data = {identifier: input, password }
+    const data = { identifier: input, password };
     console.log(data);
-    const response = await fetch('http://localhost:8000/users/login', {
-      method: 'POST',
+    const response = await fetch("http://localhost:8000/users/login", {
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
       body: JSON.stringify(data),
     });
 
     if (response.ok) {
       const responseData = await response.json();
-      const {username, email} = responseData
-      console.log(email)
+      const { username, email } = responseData;
+      console.log(email);
       const userObj = {
         username: username,
-        email: email
+        email: email,
       };
-      sessionStorage.setItem('loggedInUser', JSON.stringify(userObj));
-      // Save token to local storage or handle authenticated user
-      // localStorage.setItem('token', responseData.token);
-      // navigate('/dashboard'); // Redirect to a protected route
-      navigate('/')
+      sessionStorage.setItem("loggedInUser", JSON.stringify(userObj));
+      onLogin();
+      navigate("/");
     } else {
+      console.log("ridi");
       const errorData = await response.json();
-      setError(errorData.detail);
+      setError(errorData.error);
+      console.log(error);
     }
   };
-  
+
   return (
     <>
       <main className="main-container">
@@ -74,9 +74,11 @@ function MyComponent() {
         <div className="right-column">
           <form className="login-container" onSubmit={handleLogin}>
             <h2 className="login-title">Login</h2>
-            
+
             <div className="input-wrapper">
-            <label htmlFor="usernameOrEmail" className="visually-hidden">Username | Email</label>
+              <label htmlFor="usernameOrEmail" className="visually-hidden">
+                Username | Email
+              </label>
               <input
                 type="text"
                 id="usernameOrEmail"
@@ -89,7 +91,9 @@ function MyComponent() {
               />
             </div>
             <div className="input-wrapper">
-            <label htmlFor="password" className="visually-hidden">Password</label>
+              <label htmlFor="password" className="visually-hidden">
+                Password
+              </label>
               <input
                 type="password"
                 id="password"
@@ -101,15 +105,19 @@ function MyComponent() {
                 required
               />
             </div>
-            {error && <p style={{ color: 'red' }}>{error}</p>}
-            <button type="submit" className="login-button">Login</button>
+            {error && <p style={{ color: "red" }}>{error}</p>}
+            <button type="submit" className="login-button">
+              Login
+            </button>
             <p className="signup-prompt">
-              Don't have an account? <a href="#" className="signup-link">Create Account</a>
+              Don't have an account?{" "}
+              <a href="#" className="signup-link">
+                Create Account
+              </a>
             </p>
           </form>
         </div>
       </main>
-
     </>
   );
 }

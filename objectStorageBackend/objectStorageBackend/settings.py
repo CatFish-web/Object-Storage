@@ -155,3 +155,6 @@ EMAIL_HOST_USER = 'reza.charrakh1382@gmail.com'
 EMAIL_HOST_PASSWORD = 'zgfkalcdcotaiemh'
 
 LOGGED_IN_USER = None
+
+# settings.py
+DATA_UPLOAD_MAX_MEMORY_SIZE = 104857600  # 10 MB
