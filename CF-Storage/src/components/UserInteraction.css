@@ -1,0 +1,105 @@
+.main-container {
+  border-radius: 34px;
+  background-color: #fff;
+  display: flex;
+  gap: 20px;
+}
+@media (max-width: 991px) {
+  .main-container {
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+  }
+}
+
+.right-column {
+  display: flex;
+  flex-direction: column;
+  line-height: normal;
+  width: 65%;
+  margin-left: 150px;
+  margin-right: 150px;
+}
+.left-column {
+  display: flex;
+  flex-direction: column;
+  line-height: normal;
+  width: 45%;
+}
+@media (max-width: 991px) {
+  .left-column,
+  .right-column {
+    width: 100%;
+    margin-left: 10px;
+    margin-right: 10px;
+  }
+}
+.card {
+  background-color: var(--Default-Brand, #7288fa);
+  border-radius: 34px;
+  padding: 80px;
+  display: flex;
+  flex-direction: column;
+}
+@media (max-width: 991px) {
+  .card {
+    max-width: 100%;
+    margin-top: 40px;
+    padding: 20px;
+    justify-content: center;
+    align-items: center;
+  }
+}
+.icon-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  margin-bottom: 34px;
+}
+.icon-background {
+  background-color: #fff;
+  border-radius: 37.416px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 75px;
+  height: 75px;
+}
+.icon {
+  background-color: var(--Default-White, #fff);
+  border-radius: 37.416px;
+  width: 50px;
+  height: 50px;
+}
+.card-title {
+  color: var(--Default-White, #fff);
+  font: 500 37px/1.5 Poppins, -apple-system, Roboto, Helvetica, sans-serif;
+}
+.card-subtitle {
+  color: var(--Default-White, #fff);
+  font: 700 46px/56px Poppins, -apple-system, Roboto, Helvetica, sans-serif;
+  margin: 20px 0 18px;
+}
+@media (max-width: 991px) {
+  .card-subtitle {
+    font-size: 40px;
+    line-height: 55px;
+    margin-top: 40px;
+  }
+}
+.card-description {
+  color: var(--Default-White, #fff);
+  font: 400 16px/24px Poppins, -apple-system, Roboto, Helvetica, sans-serif;
+}
+.card-image {
+  aspect-ratio: auto 1 / 1;
+  object-fit: cover;
+  width: 334px;
+  margin-top: 20px;
+  align-self: center;
+}
+@media (max-width: 991px) {
+  .card-image {
+    margin-top: 40px;
+  }
+}

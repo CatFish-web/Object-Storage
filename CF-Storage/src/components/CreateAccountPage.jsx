@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from 'axios';
+import axios from "axios";
 import "./CreateAccountPage.css";
+import "./UserInteraction.css";
 import logo from "../assets/Vector Logo (1).svg";
 
 function Card({ icon, title, subtitle, description, imgSrc, imgAlt }) {
@@ -29,8 +30,7 @@ function MyComponent() {
   });
   const [errors, setErrors] = useState({});
   const navigate = useNavigate();
-  const [message, setMessage] = useState('');
-
+  const [message, setMessage] = useState("");
 
   const validate = () => {
     const errors = {};
@@ -65,23 +65,24 @@ function MyComponent() {
     setFormData({ ...formData, [id]: value });
   };
 
-   const  handleSubmit = async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const validationErrors = validate();
     if (Object.keys(validationErrors).length === 0) {
-
-      // Navigate to the verification page
       navigate("/verify", {
         state: {
           emailAddress: formData.email,
         },
       });
       try {
-        const response = await axios.post('http://localhost:8000/users/api/create_account', formData);
+        const response = await axios.post(
+          "http://localhost:8000/users/api/create_account",
+          formData
+        );
         setMessage(response.data.message);
-    } catch (error) {
+      } catch (error) {
         setMessage(error.response.data.error);
-    }
+      }
     } else {
       setErrors(validationErrors);
     }
@@ -89,7 +90,7 @@ function MyComponent() {
 
   const sendConfirmationEmail = (email) => {
     console.log(`Sending confirmation email to ${email}`);
-    // In a real application, you'd make an API call here
+
   };
 
   return (

@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import "./HomePage.css"
 
 const Search = ({ setQuery, setCurrentPage }) => {
   const [inputValue, setInputValue] = useState("");
@@ -7,12 +6,12 @@ const Search = ({ setQuery, setCurrentPage }) => {
   const handleSearch = (e) => {
     e.preventDefault();
     setQuery(inputValue);
-    setCurrentPage(1); // Reset to the first page for new search
+    setCurrentPage(1); 
   };
 
   return (
     <div>
-      <form className="search_form" onSubmit={handleSearch}>
+      <form className="search-form" onSubmit={handleSearch}>
         <div className="search-bar">
           <img
             loading="lazy"
