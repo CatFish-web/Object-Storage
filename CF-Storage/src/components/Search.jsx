@@ -6,7 +6,7 @@ const Search = ({ setQuery, setCurrentPage }) => {
   const handleSearch = (e) => {
     e.preventDefault();
     setQuery(inputValue);
-    setCurrentPage(1); // Reset to the first page for new search
+    setCurrentPage(1); 
   };
 
   return (
